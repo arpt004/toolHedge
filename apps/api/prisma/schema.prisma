@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PricingType {
+  FREE
+  FREEMIUM
+  PAID
+  OPEN_SOURCE
+}
+
+enum BillingUnit {
+  DAY
+  WEEK
+  MONTH
+  YEAR
+}
+
+enum BillingType {
+  RECURRING
+  ONE_TIME
+  LIFETIME
+}
+
+enum PricingModel {
+  FLAT
+  PER_USER
+  USAGE
+  CUSTOM
+}
+
+model Software {
+  id           Int         @id @default(autoincrement())
+  slug         String      @unique
+  name         String
+  tagline      String
+  description  String      @db.Text
+  logoUrl      String?
+  websiteUrl   String?
+  affiliateUrl String?
+  pricingType  PricingType
+  platforms    String[]
+  categories   Category[]
+  tags         Tag[]
+  featureValues SoftwareFeature[]
+  popularity   Int         @default(0)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  featuresVerifiedAt DateTime? @db.Date
+  pricingUrl String?
+  pricingVerifiedAt DateTime? @db.Date
+  isDemo Boolean @default(false)
+  plans Plan[]
+
+  @@index([popularity])
+  @@index([createdAt])
+}
+
+model Plan {
+  id             Int          @id @default(autoincrement())
+  softwareId     Int
+  slug           String
+  name           String
+  description    String?      @db.Text
+  isFree         Boolean      @default(false)
+  isRecommended  Boolean      @default(false)
+  trialDays      Int?
+  pricingModel   PricingModel
+  seatsNote      String?
+  highlights     String[]
+  position       Int          @default(0)
+  software       Software     @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+  prices         PlanPrice[]
+
+  @@unique([softwareId, slug])
+  @@index([softwareId, position])
+}
+
+model PlanPrice {
+  id             Int         @id @default(autoincrement())
+  planId         Int
+  billing        BillingType
+  intervalUnit   BillingUnit?
+  intervalCount  Int?
+  amount         Decimal?    @db.Decimal(12, 2)
+  currency       String
+  note           String?
+  plan           Plan        @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@index([planId])
+}
+
+model Category {
+  id          Int        @id @default(autoincrement())
+  slug        String     @unique
+  name        String
+  description String     @db.Text
+  icon        String
+  software    Software[]
+}
+
+model Tag {
+  id       Int        @id @default(autoincrement())
+  slug     String     @unique
+  name     String
+  software Software[]
+}
+
+model FeatureGroup {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  sortOrder Int      @default(0)
+  features Feature[]
+}
+
+model Feature {
+  id        Int              @id @default(autoincrement())
+  slug      String           @unique
+  name      String
+  type      String
+  groupId   Int
+  group     FeatureGroup     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  values    SoftwareFeature[]
+
+  @@index([groupId])
+}
+
+model SoftwareFeature {
+  softwareId Int
+  featureId  Int
+  valueBool  Boolean?
+  valueText  String?
+  valueNum   Float?
+  software   Software @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+  feature    Feature  @relation(fields: [featureId], references: [id], onDelete: Cascade)
+
+  @@id([softwareId, featureId])
+  @@index([featureId])
+}

@@ -1,0 +1,41 @@
+[
+  {
+    "group": "Collaboration",
+    "features": [
+      { "slug": "real-time-collab", "name": "Real-time collaboration", "type": "boolean" },
+      { "slug": "free-plan-seat-limit", "name": "Free plan seat limit", "type": "text" },
+      { "slug": "guest-access", "name": "Guest access", "type": "boolean" }
+    ]
+  },
+  {
+    "group": "Platforms & offline",
+    "features": [
+      { "slug": "offline-mode", "name": "Offline mode", "type": "boolean" },
+      { "slug": "native-mobile-app", "name": "Native mobile app", "type": "boolean" },
+      { "slug": "browser-extension", "name": "Browser extension", "type": "boolean" }
+    ]
+  },
+  {
+    "group": "Security & privacy",
+    "features": [
+      { "slug": "end-to-end-encryption", "name": "End-to-end encryption", "type": "boolean" },
+      { "slug": "self-hosted", "name": "Self-hosted option", "type": "boolean" },
+      { "slug": "open-source", "name": "Open source", "type": "boolean" }
+    ]
+  },
+  {
+    "group": "Integrations & extensibility",
+    "features": [
+      { "slug": "api-available", "name": "Public API", "type": "boolean" },
+      { "slug": "integrations-count", "name": "Available integrations", "type": "number" },
+      { "slug": "import-export-formats", "name": "Import / export formats", "type": "text" }
+    ]
+  },
+  {
+    "group": "AI",
+    "features": [
+      { "slug": "ai-assistance", "name": "AI assistance", "type": "boolean" },
+      { "slug": "local-ai", "name": "On-device AI", "type": "boolean" }
+    ]
+  }
+]

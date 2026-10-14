@@ -1,0 +1,14 @@
+[
+  { "slug": "note-taking", "name": "Note-taking", "description": "Capture ideas, organize knowledge and keep your notes connected.", "icon": "📝" },
+  { "slug": "design", "name": "Design", "description": "Create visual designs, interfaces and polished creative work.", "icon": "🎨" },
+  { "slug": "code-editors", "name": "Code editors", "description": "Write, edit and navigate source code with developer-focused editors.", "icon": "⌨️" },
+  { "slug": "project-management", "name": "Project management", "description": "Plan projects, organize tasks and coordinate team work.", "icon": "📋" },
+  { "slug": "video-editing", "name": "Video editing", "description": "Edit footage, refine color and finish video projects.", "icon": "🎬" },
+  { "slug": "password-managers", "name": "Password managers", "description": "Store and manage passwords and other sensitive information.", "icon": "🔐" },
+  { "slug": "communication", "name": "Communication", "description": "Message, meet and stay connected with people and teams.", "icon": "💬" },
+  { "slug": "browsers", "name": "Browsers", "description": "Browse the web with tools for privacy, productivity and discovery.", "icon": "🌐" },
+  { "slug": "file-sharing", "name": "File sharing", "description": "Store, sync and share files across devices and teams.", "icon": "📁" },
+  { "slug": "developer-tools", "name": "Developer tools", "description": "Build, test and ship software with tools for developers.", "icon": "🛠️" },
+  { "slug": "ai-tools", "name": "AI tools", "description": "Use AI assistants for writing, research, creativity and coding.", "icon": "✨" },
+  { "slug": "office-suites", "name": "Office suites", "description": "Create documents, spreadsheets and presentations.", "icon": "📄" }
+]
