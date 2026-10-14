@@ -9,7 +9,13 @@ import {
 import { Link, useSearchParams } from "react-router-dom";
 import { api } from "../api/client";
 import { SITE_NAME } from "../config/site";
-import { CompareRow, Comparison, Plan, PlanPrice, SoftwareSuggestion } from "../types/software";
+import {
+  CompareRow,
+  Comparison,
+  Plan,
+  PlanPrice,
+  SoftwareSuggestion,
+} from "../types/software";
 import { pricingLabel, SoftwareLogo } from "./SoftwareCard";
 import { formatInterval, formatPrice } from "../utils/pricing";
 
@@ -20,29 +26,83 @@ function costValue(price: PlanPrice, view: PriceView) {
   if (price.billing !== "RECURRING" || view === "listed") {
     return `${formatPrice(price.amount, price.currency)}${price.billing === "RECURRING" ? formatInterval(price.interval?.unit ?? null, price.interval?.count ?? null, price.billing) : ` · ${formatInterval(null, null, price.billing)}`}`;
   }
-  const amount = view === "month" ? price.monthlyEquivalent : price.yearlyEquivalent;
-  return amount === null ? null : `${formatPrice(amount, price.currency)}/${view}`;
+  const amount =
+    view === "month" ? price.monthlyEquivalent : price.yearlyEquivalent;
+  return amount === null
+    ? null
+    : `${formatPrice(amount, price.currency)}/${view}`;
 }
 
 function planPriceFor(plan: Plan, view: PriceView) {
-  const prices = plan.prices.map((price, index) => ({ price, index, amount: view === "month" ? price.monthlyEquivalent : view === "year" ? price.yearlyEquivalent : price.amount }))
-    .filter(item => item.amount !== null)
+  const prices = plan.prices
+    .map((price, index) => ({
+      price,
+      index,
+      amount:
+        view === "month"
+          ? price.monthlyEquivalent
+          : view === "year"
+            ? price.yearlyEquivalent
+            : price.amount,
+    }))
+    .filter((item) => item.amount !== null)
     .sort((left, right) => left.amount! - right.amount!);
   if (prices.length) return prices[0];
-  return plan.prices[0] ? { price: plan.prices[0], index: 0, amount: null } : null;
+  return plan.prices[0]
+    ? { price: plan.prices[0], index: 0, amount: null }
+    : null;
 }
 
 function PlanComparison({ plans, view }: { plans: Plan[]; view: PriceView }) {
   if (!plans.length) return <span className="compare-unknown">Unknown</span>;
-  return <div className="compare-plan-list">{plans.map(plan => {
-    const hasCustom = plan.pricingModel === "CUSTOM";
-    const hasOneTime = plan.prices.some(price => price.billing === "ONE_TIME");
-    const hasLifetime = plan.prices.some(price => price.billing === "LIFETIME");
-    return <div className="compare-plan-entry" key={plan.slug}>
-      <div className="compare-plan-title"><strong>{plan.name}</strong>{plan.isFree && <span className="plan-status-badge">Free</span>}{plan.trialDays && <span className="trial-badge">{plan.trialDays}-day trial</span>}{hasOneTime && <span className="plan-status-badge">One-time</span>}{hasLifetime && <span className="plan-status-badge">Lifetime</span>}</div>
-      {hasCustom || !plan.prices.length ? <span>Contact sales</span> : plan.isFree ? <span>Free</span> : <div className="compare-plan-prices">{plan.prices.map((price, index) => <div key={`${plan.slug}-${index}`}>{price.amount === null ? <span className="compare-unknown">Unknown</span> : costValue(price, view)}{price.note && <small>{price.note}</small>}</div>)}</div>}
-    </div>;
-  })}</div>;
+  return (
+    <div className="compare-plan-list">
+      {plans.map((plan) => {
+        const hasCustom = plan.pricingModel === "CUSTOM";
+        const hasOneTime = plan.prices.some(
+          (price) => price.billing === "ONE_TIME",
+        );
+        const hasLifetime = plan.prices.some(
+          (price) => price.billing === "LIFETIME",
+        );
+        return (
+          <div className="compare-plan-entry" key={plan.slug}>
+            <div className="compare-plan-title">
+              <strong>{plan.name}</strong>
+              {plan.isFree && <span className="plan-status-badge">Free</span>}
+              {plan.trialDays && (
+                <span className="trial-badge">{plan.trialDays}-day trial</span>
+              )}
+              {hasOneTime && (
+                <span className="plan-status-badge">One-time</span>
+              )}
+              {hasLifetime && (
+                <span className="plan-status-badge">Lifetime</span>
+              )}
+            </div>
+            {hasCustom || !plan.prices.length ? (
+              <span>Contact sales</span>
+            ) : plan.isFree ? (
+              <span>Free</span>
+            ) : (
+              <div className="compare-plan-prices">
+                {plan.prices.map((price, index) => (
+                  <div key={`${plan.slug}-${index}`}>
+                    {price.amount === null ? (
+                      <span className="compare-unknown">Unknown</span>
+                    ) : (
+                      costValue(price, view)
+                    )}
+                    {price.note && <small>{price.note}</small>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 const parseApps = (value: string | null) =>
@@ -193,54 +253,113 @@ export function ComparePage({
   );
   const pricingRows = useMemo(() => {
     if (!comparison?.pricing) return [];
-    return comparison.pricing.rows.map(row => {
+    return comparison.pricing.rows.map((row) => {
       let values = row.values;
       if (row.slug === "starting-price") {
-        values = comparison.pricing.plans.map(plans => {
-          const available = plans.flatMap(plan => plan.isFree ? [] : plan.prices)
-            .filter(price => price.billing === "RECURRING" && price.amount !== null)
+        values = comparison.pricing.plans.map((plans) => {
+          const available = plans
+            .flatMap((plan) => (plan.isFree ? [] : plan.prices))
+            .filter(
+              (price) => price.billing === "RECURRING" && price.amount !== null,
+            )
             .sort((left, right) => {
-              const leftAmount = priceView === "month" ? left.monthlyEquivalent : priceView === "year" ? left.yearlyEquivalent : left.monthlyEquivalent;
-              const rightAmount = priceView === "month" ? right.monthlyEquivalent : priceView === "year" ? right.yearlyEquivalent : right.monthlyEquivalent;
-              return (leftAmount ?? Number.POSITIVE_INFINITY) - (rightAmount ?? Number.POSITIVE_INFINITY);
+              const leftAmount =
+                priceView === "month"
+                  ? left.monthlyEquivalent
+                  : priceView === "year"
+                    ? left.yearlyEquivalent
+                    : left.monthlyEquivalent;
+              const rightAmount =
+                priceView === "month"
+                  ? right.monthlyEquivalent
+                  : priceView === "year"
+                    ? right.yearlyEquivalent
+                    : right.monthlyEquivalent;
+              return (
+                (leftAmount ?? Number.POSITIVE_INFINITY) -
+                (rightAmount ?? Number.POSITIVE_INFINITY)
+              );
             });
           const price = available[0];
           if (!price) return null;
-          if (priceView === "month" && price.monthlyEquivalent !== null) return `${formatPrice(price.monthlyEquivalent, price.currency)}/month`;
-          if (priceView === "year" && price.yearlyEquivalent !== null) return `${formatPrice(price.yearlyEquivalent, price.currency)}/year`;
+          if (priceView === "month" && price.monthlyEquivalent !== null)
+            return `${formatPrice(price.monthlyEquivalent, price.currency)}/month`;
+          if (priceView === "year" && price.yearlyEquivalent !== null)
+            return `${formatPrice(price.yearlyEquivalent, price.currency)}/year`;
           return costValue(price, "listed");
         });
       } else if (row.slug === "cheapest-yearly-cost") {
-        values = comparison.pricing.plans.map(plans => {
-          const yearly = plans.flatMap(plan => plan.isFree ? [] : plan.prices)
-            .filter(price => price.billing === "RECURRING" && price.yearlyEquivalent !== null)
-            .sort((left, right) => left.yearlyEquivalent! - right.yearlyEquivalent!)[0];
+        values = comparison.pricing.plans.map((plans) => {
+          const yearly = plans
+            .flatMap((plan) => (plan.isFree ? [] : plan.prices))
+            .filter(
+              (price) =>
+                price.billing === "RECURRING" &&
+                price.yearlyEquivalent !== null,
+            )
+            .sort(
+              (left, right) => left.yearlyEquivalent! - right.yearlyEquivalent!,
+            )[0];
           if (!yearly) return null;
-          if (priceView === "month") return `${formatPrice(yearly.yearlyEquivalent! / 12, yearly.currency)}/month`;
-          if (priceView === "year") return `${formatPrice(yearly.yearlyEquivalent!, yearly.currency)}/year`;
+          if (priceView === "month")
+            return `${formatPrice(yearly.yearlyEquivalent! / 12, yearly.currency)}/month`;
+          if (priceView === "year")
+            return `${formatPrice(yearly.yearlyEquivalent!, yearly.currency)}/year`;
           return `${formatPrice(yearly.yearlyEquivalent!, yearly.currency)}/year`;
         });
       }
-      const knownValues = values.filter(value => value !== null);
-      const isDifferent = knownValues.length > 1 && knownValues.some(value => JSON.stringify(value) !== JSON.stringify(knownValues[0]));
+      const knownValues = values.filter((value) => value !== null);
+      const isDifferent =
+        knownValues.length > 1 &&
+        knownValues.some(
+          (value) => JSON.stringify(value) !== JSON.stringify(knownValues[0]),
+        );
       return { ...row, values, isDifferent };
     });
   }, [comparison, priceView]);
-  const visiblePricingRows = pricingRows.filter(row => !showDifferencesOnly || row.isDifferent);
+  const visiblePricingRows = pricingRows.filter(
+    (row) => !showDifferencesOnly || row.isDifferent,
+  );
   const cheapestStartingTool = useMemo(() => {
     if (!comparison?.pricing.comparableCurrency) return -1;
-    const candidates = comparison.pricing.plans.map((plans, index) => {
-      const price = plans.flatMap(plan => plan.isFree ? [] : plan.prices)
-        .filter(item => item.billing === "RECURRING" && item.amount !== null)
-        .sort((left, right) => {
-          const leftValue = priceView === "year" ? left.yearlyEquivalent : left.monthlyEquivalent;
-          const rightValue = priceView === "year" ? right.yearlyEquivalent : right.monthlyEquivalent;
-          return (leftValue ?? Number.POSITIVE_INFINITY) - (rightValue ?? Number.POSITIVE_INFINITY);
-        })[0];
-      const amount = priceView === "listed" ? price?.monthlyEquivalent : priceView === "month" ? price?.monthlyEquivalent : price?.yearlyEquivalent;
-      return amount === null || amount === undefined ? null : { index, amount };
-    }).filter((item): item is { index: number; amount: number } => item !== null);
-    return candidates.sort((left, right) => left.amount - right.amount)[0]?.index ?? -1;
+    const candidates = comparison.pricing.plans
+      .map((plans, index) => {
+        const price = plans
+          .flatMap((plan) => (plan.isFree ? [] : plan.prices))
+          .filter(
+            (item) => item.billing === "RECURRING" && item.amount !== null,
+          )
+          .sort((left, right) => {
+            const leftValue =
+              priceView === "year"
+                ? left.yearlyEquivalent
+                : left.monthlyEquivalent;
+            const rightValue =
+              priceView === "year"
+                ? right.yearlyEquivalent
+                : right.monthlyEquivalent;
+            return (
+              (leftValue ?? Number.POSITIVE_INFINITY) -
+              (rightValue ?? Number.POSITIVE_INFINITY)
+            );
+          })[0];
+        const amount =
+          priceView === "listed"
+            ? price?.monthlyEquivalent
+            : priceView === "month"
+              ? price?.monthlyEquivalent
+              : price?.yearlyEquivalent;
+        return amount === null || amount === undefined
+          ? null
+          : { index, amount };
+      })
+      .filter(
+        (item): item is { index: number; amount: number } => item !== null,
+      );
+    return (
+      candidates.sort((left, right) => left.amount - right.amount)[0]?.index ??
+      -1
+    );
   }, [comparison, priceView]);
   const gridStyle = {
     "--compare-columns": `minmax(170px, 1fr) repeat(${Math.max(slugs.length, 2)}, minmax(185px, 1fr))`,
@@ -383,57 +502,112 @@ export function ComparePage({
             <span>{comparison.apps.length} tools selected</span>
           </div>
           <div className="pricing-compare-toolbar">
-            <div><h2>Pricing</h2><p>{comparison.pricing.comparableCurrency ? "Prices shown in a comparable currency." : "Currencies differ; starting prices are not ranked across currencies."}</p></div>
-            <label className="price-view-control"><span>Show prices</span><select value={priceView} onChange={event => setPriceView(event.target.value as PriceView)} aria-label="Pricing display basis"><option value="listed">As listed</option><option value="month">Per month</option><option value="year">Per year</option></select></label>
+            <div>
+              <h2>Pricing</h2>
+              <p>
+                {comparison.pricing.comparableCurrency
+                  ? "Prices shown in a comparable currency."
+                  : "Currencies differ; starting prices are not ranked across currencies."}
+              </p>
+            </div>
+            <label className="price-view-control">
+              <span>Show prices</span>
+              <select
+                value={priceView}
+                onChange={(event) =>
+                  setPriceView(event.target.value as PriceView)
+                }
+                aria-label="Pricing display basis"
+              >
+                <option value="listed">As listed</option>
+                <option value="month">Per month</option>
+                <option value="year">Per year</option>
+              </select>
+            </label>
           </div>
           <div className="comparison-table-wrap">
             <table className="comparison-table" style={gridStyle}>
               <thead>
                 <tr>
-                    <th className=" comparison-corner">
-                        Features
-                    </th>
+                  <th className=" comparison-corner">Features</th>
 
-                    {comparison.apps.map((app) => (
-                        <th className="compare-app-content" key={app.slug}>
-                            <div className="compare-app-heading">
-                                <button
-                                    className="compare-remove-app"
-                                    aria-label={`Remove ${app.name}`}
-                                    onClick={() =>
-                                    updateApps(slugs.filter((slug) => slug !== app.slug))
-                                    }
-                                >
-                                    ×
-                                </button>
-                                <SoftwareLogo software={app} large />
-                                <strong>{app.name}</strong>
-                                <span
-                                    className={`pricing-badge pricing-${app.pricingType.toLowerCase()}`}
-                                >
-                                    {pricingLabel(app.pricingType)}
-                                </span>
-                                <a
-                                    className="button button-primary compare-visit"
-                                    href={app.affiliateUrl || app.websiteUrl || "#"}
-                                    target="_blank"
-                                    rel="sponsored noopener noreferrer"
-                                    onClick={(event) => {
-                                    if (!app.affiliateUrl && !app.websiteUrl)
-                                        event.preventDefault();
-                                    }}
-                                >
-                                    Visit site ↗
-                                </a>
-                            </div>
-                        </th>
-                    ))}
+                  {comparison.apps.map((app) => (
+                    <th className="compare-app-content" key={app.slug}>
+                      <div className="compare-app-heading">
+                        <button
+                          className="compare-remove-app"
+                          aria-label={`Remove ${app.name}`}
+                          onClick={() =>
+                            updateApps(
+                              slugs.filter((slug) => slug !== app.slug),
+                            )
+                          }
+                        >
+                          ×
+                        </button>
+                        <SoftwareLogo software={app} large />
+                        <strong>{app.name}</strong>
+                        <span
+                          className={`pricing-badge pricing-${app.pricingType.toLowerCase()}`}
+                        >
+                          {pricingLabel(app.pricingType)}
+                        </span>
+                        <a
+                          className="button button-primary compare-visit"
+                          href={app.affiliateUrl || app.websiteUrl || "#"}
+                          target="_blank"
+                          rel="sponsored noopener noreferrer"
+                          onClick={(event) => {
+                            if (!app.affiliateUrl && !app.websiteUrl)
+                              event.preventDefault();
+                          }}
+                        >
+                          Visit site ↗
+                        </a>
+                      </div>
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                <tr className="comparison-group-row"><th className="comparison-sticky-col" colSpan={comparison.apps.length + 1}>Pricing</th></tr>
-                <tr className="comparison-plan-row"><th className="comparison-sticky-col">Plans</th>{comparison.pricing.plans.map((plans, index) => <td key={comparison.apps[index].slug}><PlanComparison plans={plans} view={priceView} /></td>)}</tr>
-                {visiblePricingRows.map(row => <tr className={row.isDifferent ? "is-different" : ""} key={`pricing-${row.slug}`}><th className="comparison-sticky-col">{row.label}</th>{row.values.map((value, index) => <td className={row.slug === "starting-price" && comparison.pricing.comparableCurrency && cheapestStartingTool === index ? "compare-cheapest-price" : ""} key={comparison.apps[index].slug}>{renderValue(value, row)}</td>)}</tr>)}
+                <tr className="comparison-group-row">
+                  <th
+                    className="comparison-sticky-col"
+                    colSpan={comparison.apps.length + 1}
+                  >
+                    Pricing
+                  </th>
+                </tr>
+                <tr className="comparison-plan-row">
+                  <th className="comparison-sticky-col">Plans</th>
+                  {comparison.pricing.plans.map((plans, index) => (
+                    <td key={comparison.apps[index].slug}>
+                      <PlanComparison plans={plans} view={priceView} />
+                    </td>
+                  ))}
+                </tr>
+                {visiblePricingRows.map((row) => (
+                  <tr
+                    className={row.isDifferent ? "is-different" : ""}
+                    key={`pricing-${row.slug}`}
+                  >
+                    <th className="comparison-sticky-col">{row.label}</th>
+                    {row.values.map((value, index) => (
+                      <td
+                        className={
+                          row.slug === "starting-price" &&
+                          comparison.pricing.comparableCurrency &&
+                          cheapestStartingTool === index
+                            ? "compare-cheapest-price"
+                            : ""
+                        }
+                        key={comparison.apps[index].slug}
+                      >
+                        {renderValue(value, row)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
                 {visibleBasics.length > 0 && (
                   <>
                     <tr className="comparison-group-row">
@@ -484,16 +658,18 @@ export function ComparePage({
                     ))}
                   </Fragment>
                 ))}
-                {!visiblePricingRows.length && !visibleBasics.length && !visibleSections.length && (
-                  <tr>
-                    <td
-                      className="comparison-no-differences"
-                      colSpan={comparison.apps.length + 1}
-                    >
-                      No differences found in the available feature data.
-                    </td>
-                  </tr>
-                )}
+                {!visiblePricingRows.length &&
+                  !visibleBasics.length &&
+                  !visibleSections.length && (
+                    <tr>
+                      <td
+                        className="comparison-no-differences"
+                        colSpan={comparison.apps.length + 1}
+                      >
+                        No differences found in the available feature data.
+                      </td>
+                    </tr>
+                  )}
               </tbody>
             </table>
           </div>
