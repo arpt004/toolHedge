@@ -1,0 +1,123 @@
+.software-card {
+  min-width: 0;
+  min-height: 190px;
+  text-align: left;
+  border: 1px solid #e7ece8;
+  border-radius: 13px;
+  background: #fff;
+  padding: 17px 17px 14px;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.software-card:hover {
+  transform: translateY(-3px);
+  border-color: #c6d6ca;
+  box-shadow: 0 11px 25px rgba(34, 61, 43, 0.075);
+}
+.software-card:focus-visible {
+  outline: 3px solid rgba(79, 127, 104, 0.35);
+  outline-offset: 3px;
+}
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.card-copy h2 {
+  margin: 16px 0 5px;
+  color: #293b2f;
+  font:
+    700 15px "Manrope",
+    sans-serif;
+  letter-spacing: -0.25px;
+}
+.card-copy p {
+  height: 37px;
+  overflow: hidden;
+  margin: 0;
+  color: #829087;
+  font-size: 12px;
+  line-height: 1.55;
+}
+.software-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  cursor: default;
+  overflow: hidden;
+}
+.software-card-main {
+  display: block;
+  flex: 1;
+  width: 100%;
+  padding: 17px 17px 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.software-card-main:focus-visible {
+  outline: 3px solid rgba(79, 127, 104, 0.35);
+  outline-offset: -3px;
+}
+.card-compare-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  min-height: 26px;
+  margin: 8px 0 11px 17px;
+  padding: 0 8px;
+  border: 1px solid #e6ece7;
+  border-radius: 6px;
+  background: white;
+  color: #718178;
+  font-size: 10px;
+  cursor: pointer;
+}
+.card-compare-toggle:hover,
+.card-compare-toggle.is-selected {
+  border-color: #b9cfbf;
+  background: #eff6f0;
+  color: #416c52;
+}
+.compare-check {
+  display: inline-grid;
+  width: 13px;
+  height: 13px;
+  place-items: center;
+  border: 1px solid #cbd6cd;
+  border-radius: 4px;
+  color: #4f7f68;
+  font-size: 10px;
+  line-height: 1;
+}
+.card-compare-toggle.is-selected .compare-check {
+  border-color: #6b9279;
+  background: #6b9279;
+  color: white;
+}
+@media (max-width: 640px) {
+  .software-card {
+    min-height: 185px;
+    padding: 13px;
+  }
+  .card-copy h2 {
+    margin-top: 13px;
+    font-size: 14px;
+  }
+  .card-copy p {
+    font-size: 11px;
+  }
+}
+@media (max-width: 390px) {
+  .software-card {
+    min-height: 172px;
+  }
+}

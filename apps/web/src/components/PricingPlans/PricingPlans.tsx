@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
-import { Plan, Software } from "../types/software";
-import { formatInterval, formatPrice } from "../utils/pricing";
+import { Plan, Software } from "../../types/software";
+import { formatInterval, formatPrice } from "../../utils/pricing";
+import "./PricingPlans.css";
 
 interface PricingPlansProps {
   software: Software;

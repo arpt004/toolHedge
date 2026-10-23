@@ -1,0 +1,210 @@
+.pricing-section {
+  margin: 30px 0 0;
+  padding-top: 27px;
+  border-top: 1px solid #edf0ed;
+}
+.pricing-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 18px;
+  margin-bottom: 17px;
+}
+.pricing-section-heading h2 {
+  margin: 0 0 5px;
+  font:
+    700 19px "Manrope",
+    sans-serif;
+  color: #35483b;
+}
+.pricing-section-heading p {
+  margin: 0;
+  color: #87938a;
+  font-size: 12px;
+}
+.billing-selector {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #87938a;
+  font-size: 10px;
+  white-space: nowrap;
+}
+.billing-selector select {
+  border: 1px solid #e1e8e2;
+  border-radius: 7px;
+  padding: 8px 27px 8px 9px;
+  background: #fff;
+  color: #52645a;
+  font-size: 11px;
+  outline: 0;
+  cursor: pointer;
+}
+.plan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(205px, 1fr));
+  align-items: stretch;
+  gap: 12px;
+}
+.plan-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 18px 16px 15px;
+  border: 1px solid #e4ebe5;
+  border-radius: 11px;
+  background: #fff;
+}
+.plan-card-recommended {
+  border-color: #9ebaa5;
+  box-shadow: 0 0 0 1px rgba(79, 127, 104, 0.08);
+}
+.recommended-badge {
+  position: absolute;
+  top: -9px;
+  right: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #4f7f68;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 600;
+}
+.plan-card-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 25px;
+}
+.plan-card-title h3 {
+  margin: 0;
+  color: #35483b;
+  font:
+    700 13px "Manrope",
+    sans-serif;
+}
+.plan-status-badge {
+  display: inline-flex;
+  padding: 4px 6px;
+  border-radius: 999px;
+  background: #edf5ee;
+  color: #52745e;
+  font-size: 8px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.trial-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: #f4f2e8;
+  color: #85764d;
+  font-size: 9px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.plan-description {
+  min-height: 34px;
+  margin: 8px 0 12px;
+  color: #849087;
+  font-size: 10px;
+  line-height: 1.55;
+}
+.plan-price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 5px;
+  color: #849087;
+}
+.plan-price strong {
+  color: #2f4938;
+  font:
+    700 21px "Manrope",
+    sans-serif;
+  letter-spacing: -0.4px;
+}
+.plan-price span {
+  font-size: 10px;
+}
+.plan-price-note,
+.plan-seats-note {
+  margin: 6px 0 0;
+  color: #8a958d;
+  font-size: 9px;
+  line-height: 1.5;
+}
+.plan-fallback-note {
+  margin-top: 5px;
+  color: #8a958d;
+  font-size: 9px;
+}
+.plan-savings {
+  align-self: flex-start;
+  margin-top: 7px;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: #eaf4ec;
+  color: #477454;
+  font-size: 9px;
+  font-weight: 700;
+}
+.plan-highlights {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0 17px;
+  padding: 0;
+  list-style: none;
+  color: #68786e;
+  font-size: 10px;
+  line-height: 1.45;
+}
+.plan-highlights li {
+  position: relative;
+  padding-left: 15px;
+}
+.plan-highlights li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #679073;
+  font-weight: 700;
+}
+.plan-visit {
+  width: 100%;
+  min-height: 35px;
+  margin-top: auto;
+  font-size: 10px;
+}
+.pricing-disclosure {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-top: 15px;
+  color: #8b968e;
+  font-size: 9px;
+}
+.pricing-disclosure a {
+  color: #557c62;
+  font-weight: 600;
+}
+.pricing-disclosure a:hover {
+  text-decoration: underline;
+}
+.pricing-disclosure p {
+  flex-basis: 100%;
+  margin: 0;
+}
+@media (max-width: 640px) {
+  .plan-grid {
+    grid-template-columns: 1fr;
+  }
+  .pricing-section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

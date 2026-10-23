@@ -1,0 +1,33 @@
+.software-logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  object-fit: cover;
+  flex: 0 0 auto;
+}
+.software-logo-fallback {
+  display: inline-grid;
+  place-items: center;
+  color: #456e55;
+  background: #eaf2ec;
+  font:
+    700 18px "Manrope",
+    sans-serif;
+}
+.software-logo-large {
+  width: 62px;
+  height: 62px;
+  border-radius: 17px;
+  font-size: 25px;
+}
+@media (max-width: 640px) {
+  .software-logo {
+    width: 37px;
+    height: 37px;
+    border-radius: 11px;
+  }
+  .software-logo-large {
+    width: 52px;
+    height: 52px;
+  }
+}

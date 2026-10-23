@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { SITE_NAME, SITE_TAGLINE } from "../config/site";
+import { SITE_NAME, SITE_TAGLINE } from "../../config/site";
+import "./Header.css";
 
 interface HeaderProps {
   query: string;

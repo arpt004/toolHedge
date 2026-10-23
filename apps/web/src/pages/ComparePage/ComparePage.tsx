@@ -7,17 +7,21 @@ import {
   useState,
 } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { api } from "../api/client";
-import { SITE_NAME } from "../config/site";
+import { api } from "../../api/client";
+import { SITE_NAME } from "../../config/site";
 import {
   CompareRow,
   Comparison,
   Plan,
   PlanPrice,
   SoftwareSuggestion,
-} from "../types/software";
-import { pricingLabel, SoftwareLogo } from "./SoftwareCard";
-import { formatInterval, formatPrice } from "../utils/pricing";
+} from "../../types/software";
+import { SoftwareLogo } from "../../components/SoftwareLogo/SoftwareLogo";
+import { PricingBadge } from "../../components/PricingBadge/PricingBadge";
+import { VisitSiteLink } from "../../components/VisitSiteLink/VisitSiteLink";
+import { StatePanel } from "../../components/StatePanel/StatePanel";
+import { formatInterval, formatPrice } from "../../utils/pricing";
+import "./ComparePage.css";
 
 type PriceView = "listed" | "month" | "year";
 
@@ -454,12 +458,12 @@ export function ComparePage({
       </section>
 
       {slugs.length < 2 && (
-        <section className="compare-empty state-panel">
-          <span className="empty-icon">⇄</span>
-          <h2>Pick at least two tools to compare</h2>
-          <p>
-            Select software from the directory, or search above to add it here.
-          </p>
+        <StatePanel
+          className="compare-empty state-panel"
+          icon="⇄"
+          heading="Pick at least two tools to compare"
+          message="Select software from the directory, or search above to add it here."
+        >
           {slugs.length === 1 && (
             <div className="single-compare-tool">
               <span>{slugs[0]}</span>
@@ -471,7 +475,7 @@ export function ComparePage({
               </button>
             </div>
           )}
-        </section>
+        </StatePanel>
       )}
       {loading && (
         <div
@@ -480,11 +484,12 @@ export function ComparePage({
         />
       )}
       {error && (
-        <section className="state-panel compare-error">
-          <span className="empty-icon">!</span>
-          <h2>Couldn’t compare these tools</h2>
-          <p>{error}</p>
-        </section>
+        <StatePanel
+          className="state-panel compare-error"
+          icon="!"
+          heading="Couldn’t compare these tools"
+          message={error}
+        />
       )}
       {comparison && (
         <>
@@ -547,23 +552,11 @@ export function ComparePage({
                         </button>
                         <SoftwareLogo software={app} large />
                         <strong>{app.name}</strong>
-                        <span
-                          className={`pricing-badge pricing-${app.pricingType.toLowerCase()}`}
-                        >
-                          {pricingLabel(app.pricingType)}
-                        </span>
-                        <a
+                        <PricingBadge pricingType={app.pricingType} />
+                        <VisitSiteLink
+                          url={app.affiliateUrl || app.websiteUrl}
                           className="button button-primary compare-visit"
-                          href={app.affiliateUrl || app.websiteUrl || "#"}
-                          target="_blank"
-                          rel="sponsored noopener noreferrer"
-                          onClick={(event) => {
-                            if (!app.affiliateUrl && !app.websiteUrl)
-                              event.preventDefault();
-                          }}
-                        >
-                          Visit site ↗
-                        </a>
+                        />
                       </div>
                     </th>
                   ))}

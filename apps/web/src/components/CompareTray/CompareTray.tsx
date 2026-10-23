@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { api } from "../api/client";
-import { Software } from "../types/software";
-import { SoftwareLogo } from "./SoftwareCard";
+import { api } from "../../api/client";
+import { Software } from "../../types/software";
+import { SoftwareLogo } from "../SoftwareLogo/SoftwareLogo";
+import "./CompareTray.css";
 
 export function CompareTray({
   selectedSlugs,

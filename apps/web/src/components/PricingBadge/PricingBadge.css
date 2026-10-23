@@ -1,0 +1,32 @@
+.pricing-badge {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 5px 8px;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 600;
+}
+.pricing-freemium {
+  color: #52745e;
+  background: #edf5ee;
+}
+.pricing-free {
+  color: #447452;
+  background: #eaf5ec;
+}
+.pricing-paid {
+  color: #8d6c36;
+  background: #f8f2e7;
+}
+.pricing-open_source {
+  color: #64718c;
+  background: #eef0f7;
+}
+@media (max-width: 640px) {
+  .pricing-badge {
+    font-size: 9px;
+    padding: 5px 6px;
+  }
+}

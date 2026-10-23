@@ -1,0 +1,121 @@
+.compare-tray {
+  position: fixed;
+  z-index: 12;
+  right: 50%;
+  bottom: 18px;
+  transform: translateX(50%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  width: min(960px, calc(100% - 36px));
+  min-height: 76px;
+  padding: 12px 16px;
+  border: 1px solid #dfe8e0;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 12px 45px rgba(34, 61, 43, 0.15);
+  backdrop-filter: blur(14px);
+}
+.compare-tray-items,
+.compare-tray-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tray-tool {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  max-width: 180px;
+  color: #52645a;
+  font-size: 11px;
+}
+.tray-tool .software-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  font-size: 14px;
+}
+.tray-tool > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tray-tool > button {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #f2f6f2;
+  color: #7e8b81;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+.tray-counter {
+  padding-left: 10px;
+  border-left: 1px solid #e8ede8;
+  color: #89958c;
+  font-size: 10px;
+  white-space: nowrap;
+}
+.tray-notice {
+  color: #896d3e;
+  font-size: 10px;
+}
+.compare-tray .button {
+  min-height: 38px;
+  white-space: nowrap;
+}
+.compare-tray .button[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: default;
+}
+@media (max-width: 640px) {
+  .compare-tray {
+    bottom: 8px;
+    width: calc(100% - 16px);
+    min-height: 62px;
+    padding: 8px;
+    gap: 6px;
+    border-radius: 11px;
+  }
+  .compare-tray-items {
+    gap: 5px;
+    overflow: hidden;
+  }
+  .tray-tool {
+    max-width: 84px;
+    gap: 4px;
+    font-size: 9px;
+  }
+  .tray-tool .software-logo {
+    width: 25px;
+    height: 25px;
+    border-radius: 7px;
+    font-size: 11px;
+  }
+  .tray-tool > button {
+    width: 17px;
+    height: 17px;
+  }
+  .tray-counter {
+    padding-left: 6px;
+    font-size: 8px;
+  }
+  .compare-tray-action {
+    gap: 0;
+  }
+  .tray-notice {
+    display: none;
+  }
+  .compare-tray .button {
+    min-height: 34px;
+    padding: 0 9px;
+    font-size: 10px;
+  }
+}

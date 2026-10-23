@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Category, PricingType, SoftwareList } from "../types/software";
+import { Category, PricingType, SoftwareList } from "../../types/software";
+import "./FilterPanel.css";
 
 type Facets = SoftwareList["facets"];
 const PRICING: Array<{ value: PricingType; label: string }> = [

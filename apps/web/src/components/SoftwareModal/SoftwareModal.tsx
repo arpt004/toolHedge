@@ -1,9 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { api } from "../api/client";
-import { Software } from "../types/software";
-import { pricingLabel, SoftwareLogo } from "./SoftwareCard";
-import { getPricingDisplay } from "../utils/pricing";
+import { api } from "../../api/client";
+import { Software } from "../../types/software";
+import { SoftwareLogo } from "../SoftwareLogo/SoftwareLogo";
+import { PricingBadge } from "../PricingBadge/PricingBadge";
+import { PlatformList } from "../PlatformList/PlatformList";
+import { MetadataLinks } from "../MetadataLinks/MetadataLinks";
+import { VisitSiteLink } from "../VisitSiteLink/VisitSiteLink";
+import { StatePanel } from "../StatePanel/StatePanel";
+import { getPricingDisplay } from "../../utils/pricing";
+import "./SoftwareModal.css";
 
 export function SoftwareModal({
   slug,
@@ -95,11 +101,7 @@ export function SoftwareModal({
             <div className="modal-heading">
               <SoftwareLogo software={software} large />
               <div>
-                <span
-                  className={`pricing-badge pricing-${software.pricingType.toLowerCase()}`}
-                >
-                  {pricingLabel(software.pricingType)}
-                </span>
+                <PricingBadge pricingType={software.pricingType} />
                 <h2 id="modal-title">{software.name}</h2>
                 <p>{software.tagline}</p>
                 {getPricingDisplay(software) && (
@@ -114,51 +116,29 @@ export function SoftwareModal({
             </div>
             <p className="modal-description">{software.description}</p>
             <h3 className="section-label">Categories</h3>
-            <div className="metadata-links">
-              {software.categories.map((category) => (
-                <Link
-                  key={category.slug}
-                  className="metadata-chip"
-                  to={`/?category=${encodeURIComponent(category.slug)}`}
-                >
-                  {category.icon} {category.name}
-                </Link>
-              ))}
-            </div>
+            <MetadataLinks
+              param="category"
+              items={software.categories.map((category) => ({
+                slug: category.slug,
+                label: `${category.icon} ${category.name}`,
+              }))}
+            />
             <h3 className="section-label metadata-section-label">Tags</h3>
-            <div className="metadata-links">
-              {software.tags.map((tag) => (
-                <Link
-                  key={tag.slug}
-                  className="metadata-chip"
-                  to={`/?tag=${encodeURIComponent(tag.slug)}`}
-                >
-                  #{tag.name}
-                </Link>
-              ))}
-            </div>
+            <MetadataLinks
+              param="tag"
+              items={software.tags.map((tag) => ({
+                slug: tag.slug,
+                label: `#${tag.name}`,
+              }))}
+            />
             <h3 className="section-label">Available on</h3>
-            <div className="platform-list modal-platforms">
-              {software.platforms.map((platform) => (
-                <span key={platform} className="platform-chip">
-                  {platform}
-                </span>
-              ))}
-            </div>
+            <PlatformList
+              platforms={software.platforms}
+              className="modal-platforms"
+            />
             {/* Future Like and Review controls belong here; intentionally not rendered in browse-only scope. */}
             <div className="modal-actions">
-              <a
-                className="button button-primary"
-                href={software.affiliateUrl || software.websiteUrl || "#"}
-                target="_blank"
-                rel="sponsored noopener noreferrer"
-                onClick={(event) => {
-                  if (!software.affiliateUrl && !software.websiteUrl)
-                    event.preventDefault();
-                }}
-              >
-                Visit site <span aria-hidden="true">↗</span>
-              </a>
+              <VisitSiteLink url={software.affiliateUrl || software.websiteUrl} />
               <Link
                 className="button button-secondary"
                 to={`/software/${software.slug}`}
@@ -168,11 +148,14 @@ export function SoftwareModal({
             </div>
           </>
         ) : error ? (
-          <div className="modal-message">
-            <span className="empty-icon">!</span>
-            <h2 id="modal-title">Couldn’t load software</h2>
-            <p>{error}</p>
-          </div>
+          <StatePanel
+            as="div"
+            className="modal-message"
+            icon="!"
+            heading="Couldn’t load software"
+            headingId="modal-title"
+            message={error}
+          />
         ) : (
           <div className="modal-message">
             <span className="spinner" />

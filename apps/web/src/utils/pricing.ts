@@ -1,4 +1,13 @@
-import { BillingType, BillingUnit, PlanPrice, PricingSummary, Software } from '../types/software';
+import { BillingType, BillingUnit, PlanPrice, PricingSummary, PricingType, Software } from '../types/software';
+
+export function pricingLabel(pricingType: PricingType) {
+  return {
+    FREE: 'Free',
+    FREEMIUM: 'Freemium',
+    PAID: 'Paid',
+    OPEN_SOURCE: 'Open source',
+  }[pricingType];
+}
 
 export function formatPrice(amount: number, currency: string) {
   if (amount === 0) return 'Free';

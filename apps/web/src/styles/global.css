@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand: theme("colors.hedge.DEFAULT");
+  --brand-dark: theme("colors.hedge.dark");
+  font-family: "DM Sans", sans-serif;
+  color: #233329;
+  background: #f8faf8;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+button,
+input,
+select {
+  font: inherit;
+}
+button,
+a,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+.button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  min-height: 43px;
+  padding: 0 17px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  transition:
+    background 0.18s,
+    border-color 0.18s,
+    transform 0.18s;
+  cursor: pointer;
+}
+.button:focus-visible {
+  outline: 3px solid rgba(79, 127, 104, 0.35);
+  outline-offset: 3px;
+}
+.button-primary {
+  background: var(--brand);
+  color: #fff;
+  border: 1px solid var(--brand);
+}
+.button-primary:hover {
+  background: var(--brand-dark);
+  border-color: var(--brand-dark);
+}
+.button-secondary {
+  color: #52645a;
+  border: 1px solid #e1e8e2;
+  background: #fff;
+}
+.button-secondary:hover {
+  border-color: #b7cbbc;
+  background: #f8fbf8;
+}
+.button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+/* .detail-skeleton is shared by SoftwareDetailsPage, CategoryRoute, and
+   ComparePage's loading state, so it lives here rather than any one of them. */
+.detail-skeleton {
+  height: 390px;
+  border-radius: 15px;
+  background: linear-gradient(100deg, #eff3ef 30%, #f7f9f7 50%, #eff3ef 70%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer {
+  to {
+    background-position-x: -200%;
+  }
+}

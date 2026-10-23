@@ -1,4 +1,5 @@
-import { SITE_NAME } from "../config/site";
+import { SITE_NAME } from "../../config/site";
+import "./Footer.css";
 
 export function Footer() {
   return (

@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { api } from "../api/client";
-import { SITE_NAME, SITE_TAGLINE } from "../config/site";
-import { Software } from "../types/software";
-import { pricingLabel, SoftwareLogo } from "./SoftwareCard";
-import { PricingPlans } from "./PricingPlans";
+import { api } from "../../api/client";
+import { SITE_NAME, SITE_TAGLINE } from "../../config/site";
+import { Software } from "../../types/software";
+import { SoftwareLogo } from "../../components/SoftwareLogo/SoftwareLogo";
+import { PricingBadge } from "../../components/PricingBadge/PricingBadge";
+import { PlatformList } from "../../components/PlatformList/PlatformList";
+import { MetadataLinks } from "../../components/MetadataLinks/MetadataLinks";
+import { VisitSiteLink } from "../../components/VisitSiteLink/VisitSiteLink";
+import { StatePanel } from "../../components/StatePanel/StatePanel";
+import { PricingPlans } from "../../components/PricingPlans/PricingPlans";
+import "./SoftwareDetailsPage.css";
 
 export function SoftwareDetailsPage() {
   const { slug = "" } = useParams();
@@ -48,14 +54,17 @@ export function SoftwareDetailsPage() {
         <Link className="back-link" to="/">
           ← Back to software
         </Link>
-        <section className="state-panel detail-error">
-          <span className="empty-icon">!</span>
-          <h1>We couldn’t find that software</h1>
-          <p>It may have moved, or the link may be incorrect.</p>
+        <StatePanel
+          className="state-panel detail-error"
+          icon="!"
+          headingTag="h1"
+          heading="We couldn’t find that software"
+          message="It may have moved, or the link may be incorrect."
+        >
           <Link className="button button-primary" to="/">
             Browse software
           </Link>
-        </section>
+        </StatePanel>
       </main>
     );
   if (!software)
@@ -77,11 +86,7 @@ export function SoftwareDetailsPage() {
         <div className="detail-top">
           <SoftwareLogo software={software} large />
           <div>
-            <span
-              className={`pricing-badge pricing-${software.pricingType.toLowerCase()}`}
-            >
-              {pricingLabel(software.pricingType)}
-            </span>
+            <PricingBadge pricingType={software.pricingType} />
             <h1>{software.name}</h1>
             <p className="detail-tagline">{software.tagline}</p>
           </div>
@@ -93,56 +98,32 @@ export function SoftwareDetailsPage() {
           </section>
           <section>
             <h2>Categories</h2>
-            <div className="metadata-links">
-              {software.categories.map((category) => (
-                <Link
-                  key={category.slug}
-                  className="metadata-chip"
-                  to={`/?category=${encodeURIComponent(category.slug)}`}
-                >
-                  {category.icon} {category.name}
-                </Link>
-              ))}
-            </div>
+            <MetadataLinks
+              param="category"
+              items={software.categories.map((category) => ({
+                slug: category.slug,
+                label: `${category.icon} ${category.name}`,
+              }))}
+            />
           </section>
           <section>
             <h2>Tags</h2>
-            <div className="metadata-links">
-              {software.tags.map((tag) => (
-                <Link
-                  key={tag.slug}
-                  className="metadata-chip"
-                  to={`/?tag=${encodeURIComponent(tag.slug)}`}
-                >
-                  #{tag.name}
-                </Link>
-              ))}
-            </div>
+            <MetadataLinks
+              param="tag"
+              items={software.tags.map((tag) => ({
+                slug: tag.slug,
+                label: `#${tag.name}`,
+              }))}
+            />
           </section>
           <section>
             <h2>Available on</h2>
-            <div className="platform-list">
-              {software.platforms.map((platform) => (
-                <span key={platform} className="platform-chip">
-                  {platform}
-                </span>
-              ))}
-            </div>
+            <PlatformList platforms={software.platforms} />
           </section>
           <PricingPlans software={software} />
           {/* Future Like and Review section; intentionally not rendered in browse-only scope. */}
           <div className="detail-actions">
-            <a
-              className="button button-primary"
-              href={visitUrl || "#"}
-              target="_blank"
-              rel="sponsored noopener noreferrer"
-              onClick={(event) => {
-                if (!visitUrl) event.preventDefault();
-              }}
-            >
-              Visit site <span aria-hidden="true">↗</span>
-            </a>
+            <VisitSiteLink url={visitUrl} />
             <Link className="button button-secondary" to="/">
               Browse more software
             </Link>
