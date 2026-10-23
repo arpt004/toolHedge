@@ -1,4 +1,4 @@
-import { ListSoftwareQuery } from '../software/software.validation';
+import { ListSoftwareQuery } from './software.validation';
 import { PricingSummary, RawPlan } from './pricing';
 
 export interface SoftwareRecord {

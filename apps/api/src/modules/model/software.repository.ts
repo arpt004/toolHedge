@@ -1,12 +1,12 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../../lib/prisma";
-import { ListSoftwareQuery } from "../software/software.validation";
+import { ListSoftwareQuery } from "./software.validation";
 import {
   CategoryRecord,
   FeatureSection,
   SoftwareRecord,
   SoftwareRepository,
-} from "./software-repository";
+} from "./software.types";
 import { demoDataAllowed, enrichPricing, RawPlan } from "./pricing";
 
 const softwareInclude = {

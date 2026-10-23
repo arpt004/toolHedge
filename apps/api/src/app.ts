@@ -4,9 +4,9 @@ import { config } from "./config/env";
 import { prisma } from "./lib/prisma";
 import { errorHandler } from "./middleware/error-handler";
 import { notFoundHandler } from "./middleware/not-found";
-import { categoryRouter } from "./modules/routes/category.routes";
-import { compareRouter } from "./modules/routes/compare.routes";
-import { softwareRouter } from "./modules/routes/software.routes";
+import { categoryRouter } from "./modules/router/category.routes";
+import { compareRouter } from "./modules/router/compare.routes";
+import { softwareRouter } from "./modules/router/software.routes";
 
 export const app = express();
 app.use(cors({ origin: config.corsOrigin }));

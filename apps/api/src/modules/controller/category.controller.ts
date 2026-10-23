@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { z } from "zod";
-import { softwareService } from "../software/software.service";
+import { softwareService } from "../model/software.service";
 
 export const listCategories: RequestHandler = async (_req, res, next) => {
   try {

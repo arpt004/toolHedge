@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { z } from "zod";
-import { softwareService } from "../software/software.service";
-import { listSoftwareQuery } from "../software/software.validation";
+import { softwareService } from "../model/software.service";
+import { listSoftwareQuery } from "../model/software.validation";
 
 export const listSoftware: RequestHandler = async (req, res, next) => {
   try {

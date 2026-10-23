@@ -3,7 +3,7 @@ import { z } from "zod";
 import {
   MissingSoftwareError,
   softwareService,
-} from "../software/software.service";
+} from "../model/software.service";
 
 const appsQuery = z
   .object({

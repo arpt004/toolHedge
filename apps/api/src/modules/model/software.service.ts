@@ -1,9 +1,9 @@
-import { PrismaSoftwareRepository } from "../model/software.repository";
+import { PrismaSoftwareRepository } from "./software.repository";
 import {
   CompareFeatureValue,
   FeatureSection,
-} from "../model/software-repository";
-import { enrichPricing, formatIntervalLabel } from "../model/pricing";
+} from "./software.types";
+import { enrichPricing, formatIntervalLabel } from "./pricing";
 import { ListSoftwareQuery } from "./software.validation";
 
 const repository = new PrismaSoftwareRepository();

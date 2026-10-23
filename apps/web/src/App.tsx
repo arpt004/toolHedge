@@ -89,6 +89,7 @@ function BrowsePage({
     tags: [],
   });
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
   const [retryCount, setRetryCount] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -111,30 +112,30 @@ function BrowsePage({
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
+    const isLoadMore = page > 1;
+    if (isLoadMore) setLoadingMore(true);
+    else setLoading(true);
     setError("");
-    const requestPages = Array.from({ length: page }, (_, index) => index + 1);
-    Promise.all(
-      requestPages.map((requestPage) =>
-        api.listSoftware({
-          q: query,
-          sort,
-          page: requestPage,
-          limit: PAGE_SIZE,
-          category: selectedCategories,
-          pricing,
-          platform: platforms,
-          tag: tags,
-        }),
-      ),
-    )
-      .then((results) => {
+    api
+      .listSoftware({
+        q: query,
+        sort,
+        page,
+        limit: PAGE_SIZE,
+        category: selectedCategories,
+        pricing,
+        platform: platforms,
+        tag: tags,
+      })
+      .then((result) => {
         if (!active) return;
-        const first = results[0];
-        setItems(results.flatMap((result) => result.items));
-        setTotal(first.total);
-        setFacets(first.facets);
+        setItems((previous) =>
+          isLoadMore ? [...previous, ...result.items] : result.items,
+        );
+        setTotal(result.total);
+        setFacets(result.facets);
         setLoading(false);
+        setLoadingMore(false);
       })
       .catch((reason) => {
         if (active) {
@@ -143,8 +144,9 @@ function BrowsePage({
               ? reason.message
               : "Unable to load software",
           );
-          setItems([]);
+          if (!isLoadMore) setItems([]);
           setLoading(false);
+          setLoadingMore(false);
         }
       });
     return () => {
@@ -410,9 +412,10 @@ function BrowsePage({
                 <div className="load-more-wrap">
                   <button
                     className="button button-secondary"
+                    disabled={loadingMore}
                     onClick={() => updateParam("page", String(page + 1))}
                   >
-                    Load more software
+                    {loadingMore ? "Loading…" : "Load more software"}
                   </button>
                 </div>
               )}
