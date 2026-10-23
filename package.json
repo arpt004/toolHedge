@@ -6,9 +6,7 @@
     "postinstall": "prisma generate --schema apps/api/prisma/schema.prisma",
     "dev": "concurrently -n api,web -c green,cyan \"npm run dev -w @toolhedge/api\" \"npm run dev -w @toolhedge/web\"",
     "build": "npm run build -w @toolhedge/api && npm run build -w @toolhedge/web",
-    "db:migrate": "prisma migrate dev --schema apps/api/prisma/schema.prisma",
-    "db:seed": "npm run db:seed -w @toolhedge/api",
-    "validate:data": "node apps/api/scripts/validate-data.mjs"
+    "db:migrate": "prisma migrate dev --schema apps/api/prisma/schema.prisma"
   },
   "devDependencies": { "concurrently": "^9.1.2", "typescript": "^5.7.3" }
 }

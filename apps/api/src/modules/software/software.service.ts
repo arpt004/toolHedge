@@ -1,10 +1,12 @@
-import { getSoftwareRepository } from "../model/software-repository.factory";
+import { PrismaSoftwareRepository } from "../model/software.repository";
 import {
   CompareFeatureValue,
   FeatureSection,
 } from "../model/software-repository";
 import { enrichPricing, formatIntervalLabel } from "../model/pricing";
 import { ListSoftwareQuery } from "./software.validation";
+
+const repository = new PrismaSoftwareRepository();
 
 export class MissingSoftwareError extends Error {
   constructor(readonly slug: string) {
@@ -38,22 +40,21 @@ const makeRow = (
 
 export const softwareService = {
   async list(query: ListSoftwareQuery) {
-    return (await getSoftwareRepository()).list(query);
+    return repository.list(query);
   },
   async getBySlug(slug: string) {
-    return (await getSoftwareRepository()).getBySlug(slug);
+    return repository.getBySlug(slug);
   },
   async listCategories() {
-    return (await getSoftwareRepository()).listCategories();
+    return repository.listCategories();
   },
   async getCategoryBySlug(slug: string) {
-    return (await getSoftwareRepository()).getCategoryBySlug(slug);
+    return repository.getCategoryBySlug(slug);
   },
   async suggest(q: string) {
-    return (await getSoftwareRepository()).suggest(q);
+    return repository.suggest(q);
   },
   async compare(slugs: string[]) {
-    const repository = await getSoftwareRepository();
     const [records, featureSections] = await Promise.all([
       repository.getBySlugs(slugs),
       repository.listFeatureSections(),

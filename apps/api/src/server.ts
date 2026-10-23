@@ -1,5 +1,6 @@
 import { app } from './app';
 import { config } from './config/env';
+import { prisma } from './lib/prisma';
 
 const server = app.listen(config.port, () => console.log(`Toolhedge API listening on http://localhost:${config.port}`));
 
@@ -9,10 +10,7 @@ const shutdown = (signal: string) => {
   shuttingDown = true;
   console.log(`${signal} received; shutting down gracefully`);
   server.close(async () => {
-    if (config.dataSource === 'db') {
-      const { prisma } = await import('./lib/prisma.js');
-      await prisma.$disconnect();
-    }
+    await prisma.$disconnect();
     process.exit(0);
   });
   setTimeout(() => process.exit(1), 10_000).unref();

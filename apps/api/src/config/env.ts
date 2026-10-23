@@ -6,5 +6,4 @@ dotenv.config({ path: resolve(process.cwd(), '../../.env') });
 export const config = {
   port: Number(process.env.API_PORT ?? 4000),
   corsOrigin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
-  dataSource: process.env.DATA_SOURCE === 'db' ? 'db' : 'json',
 };

@@ -4,5 +4,5 @@
     "rootDir": ".", "outDir": "dist", "strict": true, "esModuleInterop": true,
     "skipLibCheck": true, "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*.ts", "prisma/seed.ts"]
+  "include": ["src/**/*.ts"]
 }

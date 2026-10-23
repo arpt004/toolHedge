@@ -19,6 +19,17 @@ type SoftwareWithRelations = Prisma.SoftwareGetPayload<{
   include: typeof softwareInclude;
 }>;
 
+// The browse grid never renders features or plan pricing (only the detail
+// modal does, via getBySlug), so the list query skips those relations —
+// each one is an extra DB round trip the listing page doesn't need.
+const listInclude = {
+  categories: true,
+  tags: true,
+} satisfies Prisma.SoftwareInclude;
+type SoftwareListRelations = Prisma.SoftwareGetPayload<{
+  include: typeof listInclude;
+}>;
+
 const orderBy: Record<
   ListSoftwareQuery["sort"],
   Prisma.SoftwareOrderByWithRelationInput
@@ -52,13 +63,16 @@ export class PrismaSoftwareRepository implements SoftwareRepository {
       ...(filters.length ? { AND: filters } : {}),
       ...(!demoDataAllowed() ? { isDemo: false } : {}),
     };
-    const [records, total, facetRecords] = await prisma.$transaction([
+    // Promise.all instead of $transaction: these are independent reads for a
+    // public listing page, so they run concurrently over separate
+    // connections rather than paying for a serialized BEGIN/COMMIT.
+    const [records, total, facetRecords] = await Promise.all([
       prisma.software.findMany({
         where,
         orderBy: orderBy[query.sort],
         skip: (query.page - 1) * query.limit,
         take: query.limit,
-        include: softwareInclude,
+        include: listInclude,
       }),
       prisma.software.count({ where }),
       prisma.software.findMany({
@@ -102,13 +116,9 @@ export class PrismaSoftwareRepository implements SoftwareRepository {
         tagCounts.set(tag.slug, facet);
       }
     }
-    const items: SoftwareRecord[] = records.map((record) => {
-      const { plans, ...item } = this.mapRecord(record);
-      return {
-        ...item,
-        pricingSummary: enrichPricing(plans ?? []).pricingSummary,
-      };
-    });
+    const items: SoftwareRecord[] = records.map((record) =>
+      this.mapListRecord(record),
+    );
     return {
       items,
       page: query.page,
@@ -129,6 +139,19 @@ export class PrismaSoftwareRepository implements SoftwareRepository {
           (a, b) => b.count - a.count || a.name.localeCompare(b.name),
         ),
       },
+    };
+  }
+
+  private mapListRecord(record: SoftwareListRelations): SoftwareRecord {
+    const { categories, tags, ...item } = record;
+    return {
+      ...item,
+      categories: categories.map(({ slug, name, icon }) => ({
+        slug,
+        name,
+        icon,
+      })),
+      tags: tags.map(({ slug, name }) => ({ slug, name })),
     };
   }
 
