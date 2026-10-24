@@ -35,63 +35,234 @@ enum PricingModel {
   CUSTOM
 }
 
+enum SoftwareStatus {
+  ACTIVE
+  BETA
+  DISCONTINUED
+  ACQUIRED
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+  NEEDS_REVIEW
+}
+
+enum DeploymentOption {
+  CLOUD
+  ON_PREMISES
+  SELF_HOSTED
+  HYBRID
+}
+
+enum CompanySize {
+  SOLO
+  SMALL
+  MEDIUM
+  LARGE
+  ENTERPRISE
+}
+
+enum LinkType {
+  DOCS
+  DEMO
+  SIGNUP
+  SUPPORT
+  PRIVACY
+  TOS
+  API_DOCS
+  CHANGELOG
+  TWITTER
+  LINKEDIN
+  GITHUB
+  YOUTUBE
+  DISCORD
+  FACEBOOK
+  INSTAGRAM
+}
+
+enum MediaType {
+  COVER
+  SCREENSHOT
+  VIDEO
+}
+
+enum CapabilityAvailability {
+  AVAILABLE
+  PLANNED
+  UNAVAILABLE
+}
+
+enum DifficultyLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum ProConType {
+  PRO
+  CON
+}
+
+enum RelationshipType {
+  ALTERNATIVE
+  COMPETITOR
+  SIMILAR
+  INTEGRATION
+  COMPLEMENTARY
+  REPLACEMENT
+  PREREQUISITE
+}
+
+enum RatingDimension {
+  OVERALL
+  EASE_OF_USE
+  FEATURES
+  VALUE
+  SUPPORT
+  PERFORMANCE
+  USER_EXPERIENCE
+  INTEGRATION
+}
+
+enum RatingSource {
+  EDITORIAL
+  EXTERNAL
+  USER_AGGREGATE
+}
+
+enum ConfidenceLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum ReviewVerifiedStatus {
+  UNVERIFIED
+  VERIFIED_USER
+  VERIFIED_PURCHASE
+}
+
+enum ModerationStatus {
+  PENDING
+  PUBLISHED
+  REJECTED
+  FLAGGED
+}
+
+enum PlanType {
+  FREE
+  TRIAL
+  PAID
+  ENTERPRISE
+  CUSTOM
+  CONTACT_SALES
+}
+
 model Software {
-  id           Int         @id @default(autoincrement())
-  slug         String      @unique
-  name         String
-  tagline      String
-  description  String      @db.Text
-  logoUrl      String?
-  websiteUrl   String?
-  affiliateUrl String?
-  pricingType  PricingType
-  platforms    String[]
-  categories   Category[]
-  tags         Tag[]
-  featureValues SoftwareFeature[]
-  popularity   Int         @default(0)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  featuresVerifiedAt DateTime? @db.Date
-  pricingUrl String?
-  pricingVerifiedAt DateTime? @db.Date
-  isDemo Boolean @default(false)
-  plans Plan[]
+  id                 Int               @id @default(autoincrement())
+  slug               String            @unique
+  name               String
+  tagline            String
+  description        String            @db.Text
+  logoUrl            String?
+  websiteUrl         String?
+  affiliateUrl       String?
+  pricingType        PricingType
+  platforms          String[]
+  categories         Category[]
+  tags               Tag[]
+  featureValues      SoftwareFeature[]
+  popularity         Int               @default(0)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  featuresVerifiedAt DateTime?         @db.Date
+  pricingUrl         String?
+  pricingVerifiedAt  DateTime?         @db.Date
+  isDemo             Boolean           @default(false)
+  plans              Plan[]
+
+  longDescription     String?                @db.Text
+  overview            String?                @db.Text
+  howItWorks          String?                @db.Text
+  status              SoftwareStatus         @default(ACTIVE)
+  contentStatus       ContentStatus          @default(PUBLISHED)
+  launchDate          DateTime?              @db.Date
+  lastVerifiedAt      DateTime?
+  lastMajorUpdateAt   DateTime?              @db.Date
+  headquarters        String?
+  supportedLanguages  String[]
+  supportedRegions    String[]
+  deploymentOptions   DeploymentOption[]
+  hasFreeTrial        Boolean                @default(false)
+  hasFreePlan         Boolean                @default(false)
+  isOpenSource        Boolean                @default(false)
+  licenseType         String?
+  categoryAttributes  Json?
+  companyId           Int?
+  company             Company?               @relation(fields: [companyId], references: [id])
+  links               SoftwareLink[]
+  media               SoftwareMedia[]
+  audiences           SoftwareAudience[]
+  capabilities        SoftwareCapability[]
+  useCases            UseCase[]
+  prosCons            SoftwareProCon[]
+  takeaway            SoftwareTakeaway?
+  faqs                SoftwareFaq[]
+  relationshipsFrom   SoftwareRelationship[] @relation("RelationshipFrom")
+  relationshipsTo     SoftwareRelationship[] @relation("RelationshipTo")
+  ratings             Rating[]
+  planRecommendations PlanRecommendation[]
+  reviews             Review[]
 
   @@index([popularity])
   @@index([createdAt])
+  @@index([companyId])
+  @@index([contentStatus])
+  @@index([name(ops: raw("gin_trgm_ops"))], type: Gin, map: "Software_name_trgm_idx")
 }
 
 model Plan {
-  id             Int          @id @default(autoincrement())
-  softwareId     Int
-  slug           String
-  name           String
-  description    String?      @db.Text
-  isFree         Boolean      @default(false)
-  isRecommended  Boolean      @default(false)
-  trialDays      Int?
-  pricingModel   PricingModel
-  seatsNote      String?
-  highlights     String[]
-  position       Int          @default(0)
-  software       Software     @relation(fields: [softwareId], references: [id], onDelete: Cascade)
-  prices         PlanPrice[]
+  id            Int          @id @default(autoincrement())
+  softwareId    Int
+  slug          String
+  name          String
+  description   String?      @db.Text
+  isFree        Boolean      @default(false)
+  isRecommended Boolean      @default(false)
+  trialDays     Int?
+  pricingModel  PricingModel
+  seatsNote     String?
+  highlights    String[]
+  position      Int          @default(0)
+  software      Software     @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+  prices        PlanPrice[]
+
+  planType             PlanType             @default(PAID)
+  limits               Json?
+  isAvailable          Boolean              @default(true)
+  lastVerifiedAt       DateTime?
+  sourceUrl            String?
+  refundPolicyUrl      String?
+  minForCapabilities   SoftwareCapability[]
+  suggestedForUseCases UseCase[]
+  recommendedIn        PlanRecommendation[]
 
   @@unique([softwareId, slug])
   @@index([softwareId, position])
 }
 
 model PlanPrice {
-  id             Int         @id @default(autoincrement())
-  planId         Int
-  billing        BillingType
-  intervalUnit   BillingUnit?
-  intervalCount  Int?
-  amount         Decimal?    @db.Decimal(12, 2)
-  currency       String
-  note           String?
-  plan           Plan        @relation(fields: [planId], references: [id], onDelete: Cascade)
+  id            Int          @id @default(autoincrement())
+  planId        Int
+  billing       BillingType
+  intervalUnit  BillingUnit?
+  intervalCount Int?
+  amount        Decimal?     @db.Decimal(12, 2)
+  currency      String
+  note          String?
+  plan          Plan         @relation(fields: [planId], references: [id], onDelete: Cascade)
 
   @@index([planId])
 }
@@ -113,20 +284,20 @@ model Tag {
 }
 
 model FeatureGroup {
-  id       Int       @id @default(autoincrement())
-  name     String    @unique
-  sortOrder Int      @default(0)
-  features Feature[]
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  sortOrder Int       @default(0)
+  features  Feature[]
 }
 
 model Feature {
-  id        Int              @id @default(autoincrement())
-  slug      String           @unique
-  name      String
-  type      String
-  groupId   Int
-  group     FeatureGroup     @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  values    SoftwareFeature[]
+  id      Int               @id @default(autoincrement())
+  slug    String            @unique
+  name    String
+  type    String
+  groupId Int
+  group   FeatureGroup      @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  values  SoftwareFeature[]
 
   @@index([groupId])
 }
@@ -142,4 +313,223 @@ model SoftwareFeature {
 
   @@id([softwareId, featureId])
   @@index([featureId])
+}
+
+model Company {
+  id           Int          @id @default(autoincrement())
+  slug         String       @unique
+  name         String
+  websiteUrl   String?
+  headquarters String?
+  foundedYear  Int?
+  companySize  CompanySize?
+  description  String?      @db.Text
+  software     Software[]
+}
+
+model SoftwareLink {
+  id         Int      @id @default(autoincrement())
+  softwareId Int
+  type       LinkType
+  url        String
+  label      String?
+  software   Software @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+
+  @@unique([softwareId, type])
+}
+
+model SoftwareMedia {
+  id         Int       @id @default(autoincrement())
+  softwareId Int
+  type       MediaType
+  url        String
+  altText    String?
+  caption    String?
+  position   Int       @default(0)
+  software   Software  @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+
+  @@index([softwareId, position])
+}
+
+model Audience {
+  id       Int                @id @default(autoincrement())
+  slug     String             @unique
+  name     String
+  software SoftwareAudience[]
+}
+
+model SoftwareAudience {
+  softwareId Int
+  audienceId Int
+  software   Software @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+  audience   Audience @relation(fields: [audienceId], references: [id], onDelete: Cascade)
+
+  @@id([softwareId, audienceId])
+  @@index([audienceId])
+}
+
+model Capability {
+  id                  Int                  @id @default(autoincrement())
+  slug                String               @unique
+  name                String
+  shortDescription    String
+  detailedDescription String?              @db.Text
+  category            String?
+  benefits            String[]
+  docUrl              String?
+  isVerified          Boolean              @default(false)
+  sourceUrl           String?
+  lastVerifiedAt      DateTime?
+  software            SoftwareCapability[]
+}
+
+model SoftwareCapability {
+  id                 Int                    @id @default(autoincrement())
+  softwareId         Int
+  capabilityId       Int
+  availabilityStatus CapabilityAvailability @default(AVAILABLE)
+  minPlanId          Int?
+  position           Int                    @default(0)
+  software           Software               @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+  capability         Capability             @relation(fields: [capabilityId], references: [id], onDelete: Cascade)
+  minPlan            Plan?                  @relation(fields: [minPlanId], references: [id])
+
+  @@unique([softwareId, capabilityId])
+  @@index([capabilityId])
+  @@index([minPlanId])
+}
+
+model UseCase {
+  id              Int             @id @default(autoincrement())
+  softwareId      Int
+  slug            String
+  name            String
+  description     String          @db.Text
+  problem         String?         @db.Text
+  industry        String?
+  suggestedPlanId Int?
+  difficultyLevel DifficultyLevel @default(BEGINNER)
+  estimatedEffort String?
+  position        Int             @default(0)
+  software        Software        @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+  suggestedPlan   Plan?           @relation(fields: [suggestedPlanId], references: [id])
+
+  @@unique([softwareId, slug])
+  @@index([suggestedPlanId])
+}
+
+model SoftwareProCon {
+  id             Int        @id @default(autoincrement())
+  softwareId     Int
+  type           ProConType
+  description    String     @db.Text
+  category       String?
+  severity       Int?
+  isEditorial    Boolean    @default(true)
+  segment        String?
+  lastVerifiedAt DateTime?
+  position       Int        @default(0)
+  software       Software   @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+
+  @@index([softwareId, type])
+}
+
+model SoftwareTakeaway {
+  id                     Int      @id @default(autoincrement())
+  softwareId             Int      @unique
+  mainValueProp          String?  @db.Text
+  biggestStrength        String?  @db.Text
+  bestUseCase            String?  @db.Text
+  bestFitAudience        String?  @db.Text
+  standoutFeature        String?  @db.Text
+  pricingTakeaway        String?  @db.Text
+  mainLimitation         String?  @db.Text
+  bestReasonToChoose     String?  @db.Text
+  importantConsideration String?  @db.Text
+  software               Software @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+}
+
+model SoftwareFaq {
+  id         Int      @id @default(autoincrement())
+  softwareId Int
+  question   String
+  answer     String   @db.Text
+  position   Int      @default(0)
+  software   Software @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+
+  @@index([softwareId, position])
+}
+
+model SoftwareRelationship {
+  id             Int              @id @default(autoincrement())
+  fromSoftwareId Int
+  toSoftwareId   Int
+  type           RelationshipType
+  reason         String?          @db.Text
+  position       Int              @default(0)
+  fromSoftware   Software         @relation("RelationshipFrom", fields: [fromSoftwareId], references: [id], onDelete: Cascade)
+  toSoftware     Software         @relation("RelationshipTo", fields: [toSoftwareId], references: [id], onDelete: Cascade)
+
+  @@unique([fromSoftwareId, toSoftwareId, type])
+  @@index([toSoftwareId])
+}
+
+model Rating {
+  id                Int             @id @default(autoincrement())
+  softwareId        Int
+  dimension         RatingDimension
+  score             Decimal         @db.Decimal(3, 2)
+  maxScore          Decimal         @default(5) @db.Decimal(3, 2)
+  source            RatingSource
+  sourceName        String?
+  reviewCount       Int?
+  calculationMethod String?
+  calculatedAt      DateTime        @default(now())
+  software          Software        @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+
+  @@unique([softwareId, dimension, source, sourceName])
+}
+
+model PlanRecommendation {
+  id                Int              @id @default(autoincrement())
+  softwareId        Int
+  scenario          String
+  recommendedPlanId Int
+  reasons           String           @db.Text
+  targetProfile     String?
+  confidenceLevel   ConfidenceLevel?
+  lastReviewedAt    DateTime?
+  software          Software         @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+  recommendedPlan   Plan             @relation(fields: [recommendedPlanId], references: [id])
+
+  @@unique([softwareId, scenario])
+  @@index([recommendedPlanId])
+}
+
+model Review {
+  id                Int                  @id @default(autoincrement())
+  softwareId        Int
+  displayName       String?
+  rating            Int
+  ratingDimensions  Json?
+  title             String?
+  body              String               @db.Text
+  pros              String?              @db.Text
+  cons              String?              @db.Text
+  useCase           String?
+  userRole          String?
+  companySize       String?
+  verifiedStatus    ReviewVerifiedStatus @default(UNVERIFIED)
+  reviewDate        DateTime             @default(now())
+  helpfulVotes      Int                  @default(0)
+  reportCount       Int                  @default(0)
+  moderationStatus  ModerationStatus     @default(PENDING)
+  publisherResponse String?              @db.Text
+  source            String?
+  disclosureInfo    String?
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  software          Software             @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+
+  @@index([softwareId, moderationStatus])
 }

@@ -81,6 +81,15 @@ export function BrowsePage({
   const [error, setError] = useState("");
   const [retryCount, setRetryCount] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(
+    () => window.matchMedia("(max-width: 640px)").matches,
+  );
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 640px)");
+    const onChange = () => setIsMobile(query.matches);
+    query.addEventListener("change", onChange);
+    return () => query.removeEventListener("change", onChange);
+  }, []);
   const hasFilters = Boolean(
     query ||
     selectedCategories.length ||
@@ -317,15 +326,19 @@ export function BrowsePage({
               </p>
             </div>
             <div className="toolbar-actions">
-              <button
-                className="button button-secondary mobile-filter-button"
-                onClick={() => setDrawerOpen(true)}
-              >
-                ☷ Filters
-                {activeFilters.length > 0 && (
-                  <span className="filter-count">{activeFilters.length}</span>
-                )}
-              </button>
+              {isMobile && (
+                <button
+                  className="button button-secondary mobile-filter-button"
+                  onClick={() => setDrawerOpen(true)}
+                >
+                  ☷ Filters
+                  {activeFilters.length > 0 && (
+                    <span className="filter-count">
+                      {activeFilters.length}
+                    </span>
+                  )}
+                </button>
+              )}
               <label className="sort-control">
                 <span>Sort by</span>
                 <select
