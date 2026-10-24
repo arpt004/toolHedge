@@ -20,6 +20,9 @@ import { SoftwareLogo } from "../../components/SoftwareLogo/SoftwareLogo";
 import { PricingBadge } from "../../components/PricingBadge/PricingBadge";
 import { VisitSiteLink } from "../../components/VisitSiteLink/VisitSiteLink";
 import { StatePanel } from "../../components/StatePanel/StatePanel";
+import { VerificationBadge } from "../../components/VerificationBadge/VerificationBadge";
+import { TrendingBadge } from "../../components/TrendingBadge/TrendingBadge";
+import { SoftwareRating } from "../../components/SoftwareRating/SoftwareRating";
 import { formatInterval, formatPrice } from "../../utils/pricing";
 import "./ComparePage.css";
 
@@ -108,6 +111,17 @@ function PlanComparison({ plans, view }: { plans: Plan[]; view: PriceView }) {
     </div>
   );
 }
+
+const ratingDimensionLabels: Record<string, string> = {
+  OVERALL: "Overall",
+  EASE_OF_USE: "Ease of use",
+  FEATURES: "Features",
+  VALUE: "Value for money",
+  SUPPORT: "Support",
+  PERFORMANCE: "Performance",
+  USER_EXPERIENCE: "User experience",
+  INTEGRATION: "Integrations",
+};
 
 const parseApps = (value: string | null) =>
   value
@@ -493,6 +507,29 @@ export function ComparePage({
       )}
       {comparison && (
         <>
+          {comparison.recommendations.length > 0 && (
+            <section className="compare-recommendations" aria-label="Recommendations">
+              <h2>Which should you pick?</h2>
+              <div className="recommendation-grid">
+                {comparison.recommendations.map((rec) => (
+                  <article className="recommendation-card" key={rec.scenario}>
+                    <h3>{rec.label}</h3>
+                    {rec.winnerSlugs.length > 0 ? (
+                      <p className="recommendation-winners">
+                        {rec.winnerSlugs
+                          .map((slug) => comparison.apps.find((app) => app.slug === slug)?.name)
+                          .filter(Boolean)
+                          .join(" & ")}
+                      </p>
+                    ) : (
+                      <p className="recommendation-winners recommendation-none">No clear answer</p>
+                    )}
+                    <p className="recommendation-reason">{rec.reason}</p>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
           <div className="compare-controls">
             <label>
               <input
@@ -551,8 +588,15 @@ export function ComparePage({
                           ×
                         </button>
                         <SoftwareLogo software={app} large />
-                        <strong>{app.name}</strong>
-                        <PricingBadge pricingType={app.pricingType} />
+                        <div className="compare-app-name-row">
+                          <strong>{app.name}</strong>
+                          {app.isVerified && <VerificationBadge verifiedAt={app.verifiedAt} />}
+                        </div>
+                        <div className="compare-app-badge-row">
+                          <PricingBadge pricingType={app.pricingType} />
+                          {app.isTrending && <TrendingBadge />}
+                        </div>
+                        <SoftwareRating reviewSummary={app.reviewSummary} ratings={app.ratings} />
                         <VisitSiteLink
                           url={app.affiliateUrl || app.websiteUrl}
                           className="button button-primary compare-visit"
@@ -626,6 +670,118 @@ export function ComparePage({
                     ))}
                   </>
                 )}
+                {comparison.ratingDimensions.length > 0 && (
+                  <>
+                    <tr className="comparison-group-row">
+                      <th className="comparison-sticky-col" colSpan={comparison.apps.length + 1}>
+                        Ratings
+                      </th>
+                    </tr>
+                    {comparison.ratingDimensions.map((row) => (
+                      <tr key={`${row.dimension}-${row.source}-${row.sourceName ?? ""}`}>
+                        <th className="comparison-sticky-col">
+                          {ratingDimensionLabels[row.dimension] ?? row.dimension}
+                          <small className="comparison-rating-source">
+                            {row.source === "EDITORIAL"
+                              ? " (editorial)"
+                              : row.source === "EXTERNAL"
+                                ? ` (${row.sourceName ?? "external"})`
+                                : " (user)"}
+                          </small>
+                        </th>
+                        {row.values.map((value, index) => (
+                          <td key={comparison.apps[index].slug}>
+                            {value === null ? (
+                              <span className="compare-unknown">Unknown</span>
+                            ) : (
+                              `${value.toFixed(1)} / ${row.maxScore}`
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </>
+                )}
+                <tr className="comparison-group-row">
+                  <th className="comparison-sticky-col" colSpan={comparison.apps.length + 1}>
+                    Audience & use cases
+                  </th>
+                </tr>
+                <tr>
+                  <th className="comparison-sticky-col">Who it's for</th>
+                  {comparison.apps.map((app) => (
+                    <td key={app.slug}>
+                      {app.audiences.length ? (
+                        <ul className="compare-chip-list">
+                          {app.audiences.map((audience) => (
+                            <li key={audience.slug}>{audience.name}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <span className="compare-unknown">Unknown</span>
+                      )}
+                    </td>
+                  ))}
+                </tr>
+                <tr>
+                  <th className="comparison-sticky-col">Use cases</th>
+                  {comparison.apps.map((app) => (
+                    <td key={app.slug}>
+                      {app.useCases.length ? (
+                        <ul className="compare-text-list">
+                          {app.useCases.map((useCase) => (
+                            <li key={useCase.slug}>{useCase.name}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <span className="compare-unknown">Unknown</span>
+                      )}
+                    </td>
+                  ))}
+                </tr>
+                <tr className="comparison-group-row">
+                  <th className="comparison-sticky-col" colSpan={comparison.apps.length + 1}>
+                    Pros & cons
+                  </th>
+                </tr>
+                <tr>
+                  <th className="comparison-sticky-col">Strengths</th>
+                  {comparison.apps.map((app) => {
+                    const pros = app.prosCons.filter((item) => item.type === "PRO");
+                    return (
+                      <td key={app.slug}>
+                        {pros.length ? (
+                          <ul className="compare-text-list compare-pros">
+                            {pros.map((item, index) => (
+                              <li key={index}>{item.description}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <span className="compare-unknown">Unknown</span>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+                <tr>
+                  <th className="comparison-sticky-col">Limitations</th>
+                  {comparison.apps.map((app) => {
+                    const cons = app.prosCons.filter((item) => item.type === "CON");
+                    return (
+                      <td key={app.slug}>
+                        {cons.length ? (
+                          <ul className="compare-text-list compare-cons">
+                            {cons.map((item, index) => (
+                              <li key={index}>{item.description}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <span className="compare-unknown">Unknown</span>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
                 {visibleSections.map((section) => (
                   <Fragment key={section.title}>
                     <tr className="comparison-group-row">

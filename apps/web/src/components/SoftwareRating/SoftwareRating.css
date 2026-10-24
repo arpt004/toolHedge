@@ -1,0 +1,18 @@
+.software-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #45564a;
+  font-size: 12px;
+}
+.software-rating [aria-hidden="true"] {
+  color: #e2a93d;
+}
+.software-rating-count {
+  color: #96a39b;
+  font-weight: 500;
+}
+.software-rating-empty {
+  color: #a3ada5;
+  font-style: italic;
+}

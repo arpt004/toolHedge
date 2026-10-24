@@ -200,6 +200,10 @@ model Software {
   isOpenSource        Boolean                @default(false)
   licenseType         String?
   categoryAttributes  Json?
+  isVerified          Boolean                @default(false)
+  verifiedAt          DateTime?
+  trendingStartAt     DateTime?
+  trendingEndAt       DateTime?
   companyId           Int?
   company             Company?               @relation(fields: [companyId], references: [id])
   links               SoftwareLink[]

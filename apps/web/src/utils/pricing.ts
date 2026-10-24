@@ -26,14 +26,20 @@ export function formatInterval(unit: BillingUnit | null, count: number | null, b
   return count === 1 ? `/${labels[unit]}` : `/${count} ${labels[unit]}s`;
 }
 
+// Single shared summary line used by cards, the quick-view popup, and the
+// comparison page, so pricing always reads the same way everywhere. Never
+// returns an empty string — an unresolvable case is labeled explicitly
+// rather than left blank (which could read as "free").
 export function getPricingDisplay(software: Pick<Software, 'pricingType' | 'pricingSummary' | 'plans'>) {
   const summary = software.pricingSummary;
-  if (!summary) return '';
+  if (!summary) return 'Pricing not disclosed';
   if (summary.startingPrice) return `From ${formatPrice(summary.startingPrice.monthlyEquivalent, summary.startingPrice.currency)}/mo`;
   if (summary.hasFreePlan) return software.pricingType === 'FREEMIUM' ? 'Free + paid plans' : 'Free';
-  if (summary.hasCustomPricing) return 'Contact sales';
+  if (summary.hasCustomPricing) return 'Custom pricing';
+  if (summary.hasFreeTrial) return 'Free trial available';
   const oneTime = software.plans?.flatMap(plan => plan.prices).find(price => (price.billing === 'ONE_TIME' || price.billing === 'LIFETIME') && price.amount !== null);
-  return oneTime ? `${oneTime.billing === 'LIFETIME' ? 'Lifetime' : 'One-time'} ${formatPrice(oneTime.amount!, oneTime.currency)}` : '';
+  if (oneTime) return `${oneTime.billing === 'LIFETIME' ? 'Lifetime' : 'One-time'} ${formatPrice(oneTime.amount!, oneTime.currency)}`;
+  return 'Pricing not disclosed';
 }
 
 export function cheapestOnBasis(prices: PlanPrice[], basis: 'listed' | 'month' | 'year') {

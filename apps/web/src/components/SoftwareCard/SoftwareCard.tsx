@@ -1,7 +1,12 @@
 import { Software } from "../../types/software";
 import { SoftwareLogo } from "../SoftwareLogo/SoftwareLogo";
 import { PricingBadge } from "../PricingBadge/PricingBadge";
-import { PlatformList } from "../PlatformList/PlatformList";
+import { VerificationBadge } from "../VerificationBadge/VerificationBadge";
+import { TrendingBadge } from "../TrendingBadge/TrendingBadge";
+import { SoftwareRating } from "../SoftwareRating/SoftwareRating";
+import { FeatureHighlights } from "../FeatureHighlights/FeatureHighlights";
+import { getPricingDisplay } from "../../utils/pricing";
+import { isNewlyLaunched } from "../../utils/badges";
 import "./SoftwareCard.css";
 
 export function SoftwareCard({
@@ -15,36 +20,72 @@ export function SoftwareCard({
   isCompared?: boolean;
   onToggleCompare?: (software: Software) => void;
 }) {
+  const isNew = !software.isTrending && isNewlyLaunched(software);
   return (
     <article className="software-card">
       <button
         className="software-card-main"
         onClick={() => onSelect(software)}
-        aria-label={`View ${software.name}`}
+        aria-label={`Quick view ${software.name}`}
       >
-        <div className="card-top">
+        <div className="card-header">
           <SoftwareLogo software={software} />
+          <div className="card-header-text">
+            <h2 title={software.name}>
+              <span className="card-name-text">{software.name}</span>
+              {software.isVerified && <VerificationBadge verifiedAt={software.verifiedAt} />}
+            </h2>
+            <p className="card-tagline" title={software.tagline}>
+              {software.tagline}
+            </p>
+          </div>
+        </div>
+        {(software.isTrending || isNew) && (
+          <div className="card-status-row">
+            {software.isTrending ? <TrendingBadge /> : <span className="new-badge">New</span>}
+          </div>
+        )}
+        <div className="card-pricing-row">
           <PricingBadge pricingType={software.pricingType} />
+          <span className="card-pricing-line">{getPricingDisplay(software)}</span>
         </div>
-        <div className="card-copy">
-          <h2>{software.name}</h2>
-          <p>{software.tagline}</p>
-        </div>
-        <PlatformList platforms={software.platforms} limit={3} />
+        <SoftwareRating reviewSummary={software.reviewSummary} ratings={software.ratings} />
+        {software.platforms.length > 0 && (
+          <p className="card-platforms">{software.platforms.join(" · ")}</p>
+        )}
+        <p className="card-description" title={software.description}>
+          {software.description}
+        </p>
+        {software.capabilities && software.capabilities.length > 0 && (
+          <FeatureHighlights capabilities={software.capabilities} limit={4} />
+        )}
       </button>
-      {onToggleCompare && (
+      <div className="card-footer">
         <button
-          className={`card-compare-toggle${isCompared ? " is-selected" : ""}`}
-          aria-pressed={isCompared}
-          onClick={() => onToggleCompare(software)}
+          className="card-detail-link"
+          onClick={(event) => {
+            event.stopPropagation();
+            onSelect(software);
+          }}
         >
-          <span className="compare-check" aria-hidden="true">
-            {isCompared ? "✓" : "+"}
-          </span>
-          {isCompared ? "Added" : "Compare"}
+          Quick view
         </button>
-      )}
-      {/* Future Like and Review controls belong here; intentionally not rendered in browse-only scope. */}
+        {onToggleCompare && (
+          <button
+            className={`card-compare-toggle${isCompared ? " is-selected" : ""}`}
+            aria-pressed={isCompared}
+            onClick={(event) => {
+              event.stopPropagation();
+              onToggleCompare(software);
+            }}
+          >
+            <span className="compare-check" aria-hidden="true">
+              {isCompared ? "✓" : "+"}
+            </span>
+            {isCompared ? "Added" : "Compare"}
+          </button>
+        )}
+      </div>
     </article>
   );
 }

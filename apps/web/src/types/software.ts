@@ -226,6 +226,11 @@ export interface Software {
   isOpenSource?: boolean;
   licenseType?: string | null;
   categoryAttributes?: Record<string, unknown> | null;
+  isVerified?: boolean;
+  verifiedAt?: string | null;
+  trendingStartAt?: string | null;
+  trendingEndAt?: string | null;
+  isTrending?: boolean;
   company?: Company | null;
   links?: SoftwareLink[];
   media?: SoftwareMedia[];
@@ -280,8 +285,38 @@ export interface CompareSection {
   title: string;
   rows: CompareRow[];
 }
+export interface ComparisonApp
+  extends Pick<
+    Software,
+    | 'id' | 'slug' | 'name' | 'tagline' | 'description' | 'logoUrl' | 'pricingType' | 'platforms'
+    | 'websiteUrl' | 'affiliateUrl' | 'popularity' | 'isVerified' | 'verifiedAt' | 'isTrending'
+    | 'isOpenSource' | 'status' | 'launchDate' | 'lastVerifiedAt'
+  > {
+  companyName: string | null;
+  category: string | null;
+  ratings: Rating[];
+  reviewSummary: ReviewSummary;
+  audiences: Audience[];
+  useCases: UseCase[];
+  prosCons: ProCon[];
+  deploymentOptions: string[];
+  supportedLanguages: string[];
+}
+export interface ComparisonRatingRow {
+  dimension: RatingDimension;
+  source: Rating['source'];
+  sourceName: string | null;
+  maxScore: number;
+  values: Array<number | null>;
+}
+export interface ComparisonRecommendation {
+  scenario: string;
+  label: string;
+  winnerSlugs: string[];
+  reason: string;
+}
 export interface Comparison {
-  apps: Array<Pick<Software, 'id' | 'slug' | 'name' | 'tagline' | 'logoUrl' | 'pricingType' | 'platforms' | 'websiteUrl' | 'affiliateUrl' | 'popularity'>>;
+  apps: ComparisonApp[];
   basics: CompareRow[];
   sections: CompareSection[];
   pricing: {
@@ -289,4 +324,6 @@ export interface Comparison {
     rows: CompareRow[];
     plans: Plan[][];
   };
+  ratingDimensions: ComparisonRatingRow[];
+  recommendations: ComparisonRecommendation[];
 }

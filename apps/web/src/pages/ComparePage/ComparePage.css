@@ -305,6 +305,102 @@
   padding: 0 10px;
   font-size: 10px;
 }
+.compare-app-name-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.compare-app-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.comparison-rating-source {
+  display: block;
+  color: #96a39b;
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: none;
+}
+.compare-chip-list,
+.compare-text-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 11px;
+}
+.compare-chip-list {
+  flex-flow: row wrap;
+}
+.compare-chip-list li {
+  border: 1px solid #e3ebe4;
+  border-radius: 999px;
+  padding: 3px 9px;
+  background: #f8fbf8;
+  color: #5e7967;
+}
+.compare-text-list li {
+  line-height: 1.5;
+  color: #52645a;
+}
+.compare-pros li::before {
+  content: "+ ";
+  color: #3a6a4d;
+  font-weight: 700;
+}
+.compare-cons li::before {
+  content: "− ";
+  color: #8a6530;
+  font-weight: 700;
+}
+.compare-recommendations {
+  margin-bottom: 20px;
+  padding: 18px 20px;
+  border: 1px solid #dfeade;
+  border-radius: 12px;
+  background: #f6faf7;
+}
+.compare-recommendations h2 {
+  margin: 0 0 12px;
+  color: #293b2f;
+  font:
+    700 15px "Manrope",
+    sans-serif;
+}
+.recommendation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+.recommendation-card h3 {
+  margin: 0 0 5px;
+  color: #3b4c40;
+  font:
+    700 11px "Manrope",
+    sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.recommendation-winners {
+  margin: 0 0 4px;
+  color: #3a6a4d;
+  font:
+    700 14px "Manrope",
+    sans-serif;
+}
+.recommendation-none {
+  color: #96a39b;
+  font-style: italic;
+}
+.recommendation-reason {
+  margin: 0;
+  color: #65756a;
+  font-size: 11.5px;
+  line-height: 1.6;
+}
 .compare-remove-app {
   position: absolute;
   top: 10px;

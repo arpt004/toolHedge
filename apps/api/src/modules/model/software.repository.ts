@@ -57,16 +57,89 @@ const reviewOrderBy: Record<
   helpful: { helpfulVotes: "desc" },
 };
 
-// The browse grid never renders features or plan pricing (only the detail
-// modal does, via getBySlug), so the list query skips those relations —
-// each one is an extra DB round trip the listing page doesn't need.
+// The browse grid never renders full plan pricing (only the detail modal
+// does, via getBySlug), so the list query skips that relation — it's an
+// extra DB round trip the listing page doesn't need. It does need `ratings`
+// for the card's star rating and a few `capabilities` for the card's
+// feature-highlight chips — both cheap (a handful of rows per software via
+// Prisma's relation-join, not a separate round trip per row). Capabilities
+// are capped to 4 here since cards only ever show a short preview.
 const listInclude = {
   categories: true,
   tags: true,
+  ratings: true,
+  capabilities: {
+    include: { capability: true, minPlan: { select: { slug: true, name: true } } },
+    orderBy: { position: "asc" },
+    take: 4,
+  },
 } satisfies Prisma.SoftwareInclude;
 type SoftwareListRelations = Prisma.SoftwareGetPayload<{
   include: typeof listInclude;
 }>;
+
+function computeIsTrending(
+  trendingStartAt: Date | null,
+  trendingEndAt: Date | null,
+): boolean {
+  if (!trendingStartAt || !trendingEndAt) return false;
+  const now = Date.now();
+  return trendingStartAt.getTime() <= now && now <= trendingEndAt.getTime();
+}
+
+function mapCapabilities(
+  capabilities: Array<{
+    availabilityStatus: string;
+    minPlan: { slug: string; name: string } | null;
+    capability: {
+      slug: string;
+      name: string;
+      shortDescription: string;
+      detailedDescription: string | null;
+      category: string | null;
+      benefits: string[];
+      docUrl: string | null;
+      isVerified: boolean;
+    };
+  }>,
+) {
+  return capabilities.map((entry) => ({
+    slug: entry.capability.slug,
+    name: entry.capability.name,
+    shortDescription: entry.capability.shortDescription,
+    detailedDescription: entry.capability.detailedDescription,
+    category: entry.capability.category,
+    benefits: entry.capability.benefits,
+    docUrl: entry.capability.docUrl,
+    isVerified: entry.capability.isVerified,
+    availabilityStatus: entry.availabilityStatus,
+    minPlan: entry.minPlan,
+  }));
+}
+
+function mapRatings(
+  ratings: Array<{
+    dimension: string;
+    score: Prisma.Decimal;
+    maxScore: Prisma.Decimal;
+    source: string;
+    sourceName: string | null;
+    reviewCount: number | null;
+    calculationMethod: string | null;
+    calculatedAt: Date;
+  }>,
+) {
+  return ratings.map((rating) => ({
+    dimension: rating.dimension,
+    score: Number(rating.score),
+    maxScore: Number(rating.maxScore),
+    source: rating.source,
+    sourceName: rating.sourceName,
+    reviewCount: rating.reviewCount,
+    calculationMethod: rating.calculationMethod,
+    calculatedAt: rating.calculatedAt,
+  }));
+}
 
 const orderBy: Record<
   ListSoftwareQuery["sort"],
@@ -155,8 +228,17 @@ export class PrismaSoftwareRepository implements SoftwareRepository {
         tagCounts.set(tag.slug, facet);
       }
     }
+    // One batched aggregate for all cards on this page instead of one
+    // query per card — avoids N+1 while still giving each card a real
+    // review average/count.
+    const reviewSummaries = await this.batchReviewSummaries(
+      records.map((record) => record.id),
+    );
     const items: SoftwareRecord[] = records.map((record) =>
-      this.mapListRecord(record),
+      this.mapListRecord(
+        record,
+        reviewSummaries.get(record.id) ?? { average: null, count: 0 },
+      ),
     );
     return {
       items,
@@ -181,8 +263,11 @@ export class PrismaSoftwareRepository implements SoftwareRepository {
     };
   }
 
-  private mapListRecord(record: SoftwareListRelations): SoftwareRecord {
-    const { categories, tags, ...item } = record;
+  private mapListRecord(
+    record: SoftwareListRelations,
+    reviewStats: { average: number | null; count: number },
+  ): SoftwareRecord {
+    const { categories, tags, ratings, capabilities, ...item } = record;
     return {
       ...item,
       categories: categories.map(({ slug, name, icon }) => ({
@@ -191,6 +276,14 @@ export class PrismaSoftwareRepository implements SoftwareRepository {
         icon,
       })),
       tags: tags.map(({ slug, name }) => ({ slug, name })),
+      ratings: mapRatings(ratings),
+      capabilities: mapCapabilities(capabilities),
+      isTrending: computeIsTrending(item.trendingStartAt, item.trendingEndAt),
+      reviewSummary: {
+        average: reviewStats.average,
+        count: reviewStats.count,
+        distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+      },
     };
   }
 
@@ -280,18 +373,7 @@ export class PrismaSoftwareRepository implements SoftwareRepository {
         slug: audience.slug,
         name: audience.name,
       })),
-      capabilities: capabilities.map((entry) => ({
-        slug: entry.capability.slug,
-        name: entry.capability.name,
-        shortDescription: entry.capability.shortDescription,
-        detailedDescription: entry.capability.detailedDescription,
-        category: entry.capability.category,
-        benefits: entry.capability.benefits,
-        docUrl: entry.capability.docUrl,
-        isVerified: entry.capability.isVerified,
-        availabilityStatus: entry.availabilityStatus,
-        minPlan: entry.minPlan,
-      })),
+      capabilities: mapCapabilities(capabilities),
       useCases: useCases.map((useCase) => ({
         slug: useCase.slug,
         name: useCase.name,
@@ -331,16 +413,7 @@ export class PrismaSoftwareRepository implements SoftwareRepository {
         reason,
         software: toSoftware,
       })),
-      ratings: ratings.map((rating) => ({
-        dimension: rating.dimension,
-        score: Number(rating.score),
-        maxScore: Number(rating.maxScore),
-        source: rating.source,
-        sourceName: rating.sourceName,
-        reviewCount: rating.reviewCount,
-        calculationMethod: rating.calculationMethod,
-        calculatedAt: rating.calculatedAt,
-      })),
+      ratings: mapRatings(ratings),
       planRecommendations: planRecommendations.map((rec) => ({
         scenario: rec.scenario,
         recommendedPlan: rec.recommendedPlan,
@@ -349,6 +422,7 @@ export class PrismaSoftwareRepository implements SoftwareRepository {
         confidenceLevel: rec.confidenceLevel,
         lastReviewedAt: rec.lastReviewedAt,
       })),
+      isTrending: computeIsTrending(item.trendingStartAt, item.trendingEndAt),
     };
   }
 
@@ -439,7 +513,56 @@ export class PrismaSoftwareRepository implements SoftwareRepository {
       },
       include: softwareInclude,
     });
-    return records.map((record) => this.mapRecord(record));
+    const reviewSummaries = await this.batchReviewSummaries(
+      records.map((record) => record.id),
+    );
+    return records.map((record) => ({
+      ...this.mapRecord(record),
+      reviewSummary: reviewSummaries.get(record.id) ?? {
+        average: null,
+        count: 0,
+        distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+      },
+    }));
+  }
+
+  // Shared by list() and getBySlugs(): one batched groupBy for however many
+  // software ids are in play, instead of one query per record.
+  private async batchReviewSummaries(softwareIds: number[]) {
+    const summaries = new Map<
+      number,
+      { average: number | null; count: number; distribution: Record<1 | 2 | 3 | 4 | 5, number> }
+    >();
+    if (!softwareIds.length) return summaries;
+    const stats = await prisma.review.groupBy({
+      by: ["softwareId", "rating"],
+      where: { softwareId: { in: softwareIds }, moderationStatus: "PUBLISHED" },
+      _count: { rating: true },
+    });
+    const working = new Map<
+      number,
+      { total: number; weightedSum: number; distribution: Record<1 | 2 | 3 | 4 | 5, number> }
+    >();
+    for (const bucket of stats) {
+      const entry = working.get(bucket.softwareId) ?? {
+        total: 0,
+        weightedSum: 0,
+        distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+      };
+      entry.total += bucket._count.rating;
+      entry.weightedSum += bucket.rating * bucket._count.rating;
+      const rating = bucket.rating as 1 | 2 | 3 | 4 | 5;
+      if (rating in entry.distribution) entry.distribution[rating] = bucket._count.rating;
+      working.set(bucket.softwareId, entry);
+    }
+    for (const [softwareId, entry] of working) {
+      summaries.set(softwareId, {
+        average: entry.total > 0 ? Math.round((entry.weightedSum / entry.total) * 10) / 10 : null,
+        count: entry.total,
+        distribution: entry.distribution,
+      });
+    }
+    return summaries;
   }
 
   async suggest(q: string) {

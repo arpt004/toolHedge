@@ -24,6 +24,8 @@ import { PlanRecommendationList } from "../../components/PlanRecommendationList/
 import { TechnicalDetails } from "../../components/TechnicalDetails/TechnicalDetails";
 import { SectionNav } from "../../components/SectionNav/SectionNav";
 import { ShareActions } from "../../components/ShareActions/ShareActions";
+import { VerificationBadge } from "../../components/VerificationBadge/VerificationBadge";
+import { TrendingBadge } from "../../components/TrendingBadge/TrendingBadge";
 import "./SoftwareDetailsPage.css";
 
 const linkTypeLabel: Record<string, string> = { DEMO: "View demo", SIGNUP: "Sign up free" };
@@ -280,6 +282,8 @@ export function SoftwareDetailsPage({
           <div className="detail-top-info">
             <div className="detail-top-badges">
               <PricingBadge pricingType={software.pricingType} />
+              {software.isVerified && <VerificationBadge verifiedAt={software.verifiedAt} />}
+              {software.isTrending && <TrendingBadge />}
               {software.status && software.status !== "ACTIVE" && (
                 <span className="capability-badge">{software.status}</span>
               )}

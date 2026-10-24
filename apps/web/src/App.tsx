@@ -181,7 +181,13 @@ export default function App() {
       </Routes>
       <Footer />
       {preview && location.pathname === "/" && (
-        <SoftwareModal key={preview} slug={preview} onClose={closePreview} />
+        <SoftwareModal
+          key={preview}
+          slug={preview}
+          onClose={closePreview}
+          isCompared={selectedSlugs.includes(preview)}
+          onToggleCompare={toggleCompare}
+        />
       )}
       {location.pathname !== "/compare" && (
         <CompareTray

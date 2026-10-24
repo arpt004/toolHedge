@@ -1,0 +1,11 @@
+.verification-badge {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  color: #3a8be0;
+  flex: 0 0 auto;
+}
+.verification-badge svg {
+  width: 100%;
+  height: 100%;
+}

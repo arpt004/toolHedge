@@ -174,6 +174,11 @@ export interface SoftwareRecord {
   isOpenSource?: boolean;
   licenseType?: string | null;
   categoryAttributes?: unknown;
+  isVerified?: boolean;
+  verifiedAt?: Date | string | null;
+  trendingStartAt?: Date | string | null;
+  trendingEndAt?: Date | string | null;
+  isTrending?: boolean;
   company?: CompanyRecord | null;
   links?: SoftwareLinkRecord[];
   media?: SoftwareMediaRecord[];
