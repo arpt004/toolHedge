@@ -5,6 +5,7 @@ import { SoftwareCard } from "../../components/SoftwareCard/SoftwareCard";
 import { FilterPanel } from "../../components/FilterPanel/FilterPanel";
 import { StatePanel } from "../../components/StatePanel/StatePanel";
 import { SITE_NAME, SITE_TAGLINE } from "../../config/site";
+import { useDocumentSeo } from "../../hooks/seo";
 import {
   Category,
   PricingType,
@@ -31,17 +32,6 @@ const parseValues = (value: string | null) =>
         ),
       ]
     : [];
-
-function setMeta(title: string, description: string) {
-  document.title = title;
-  let meta = document.querySelector('meta[name="description"]');
-  if (!meta) {
-    meta = document.createElement("meta");
-    meta.setAttribute("name", "description");
-    document.head.appendChild(meta);
-  }
-  meta.setAttribute("content", description);
-}
 
 export function BrowsePage({
   categories,
@@ -98,14 +88,12 @@ export function BrowsePage({
     tags.length,
   );
 
-  useEffect(() => {
-    setMeta(
-      pageCategory
-        ? `Best ${pageCategory.name} software | ${SITE_NAME}`
-        : `Discover software | ${SITE_NAME}`,
-      pageCategory?.description ?? SITE_TAGLINE,
-    );
-  }, [pageCategory]);
+  useDocumentSeo({
+    title: pageCategory
+      ? `Best ${pageCategory.name} software | ${SITE_NAME}`
+      : `Discover software | ${SITE_NAME}`,
+    description: pageCategory?.description ?? SITE_TAGLINE,
+  });
 
   useEffect(() => {
     let active = true;

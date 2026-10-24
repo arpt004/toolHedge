@@ -48,4 +48,11 @@ export const api = {
     const query = new URLSearchParams({ q });
     return request<import('../types/software').SoftwareSuggestion[]>(`/software/suggest?${query}`);
   },
+  listReviews(slug: string, params: { page?: number; limit?: number; sort?: 'newest' | 'highest' | 'lowest' | 'helpful' }) {
+    const query = new URLSearchParams();
+    if (params.page) query.set('page', String(params.page));
+    if (params.limit) query.set('limit', String(params.limit));
+    if (params.sort) query.set('sort', params.sort);
+    return request<import('../types/software').ReviewPage>(`/software/${encodeURIComponent(slug)}/reviews?${query}`);
+  },
 };

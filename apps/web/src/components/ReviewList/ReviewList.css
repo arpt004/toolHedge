@@ -1,0 +1,89 @@
+.review-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 14px;
+}
+.review-toolbar .sort-control select {
+  appearance: none;
+  min-width: 140px;
+  border: 1px solid #e3e9e4;
+  border-radius: 8px;
+  color: #45564a;
+  background: white;
+  padding: 7px 10px;
+  font-size: 12px;
+}
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.review-card {
+  border: 1px solid #e6ece7;
+  border-radius: 12px;
+  padding: 16px;
+  background: white;
+}
+.review-card-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+.review-card-heading strong {
+  color: #2b3c31;
+  font-size: 13px;
+}
+.review-stars {
+  color: #e2a93d;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+.review-card h3 {
+  margin: 8px 0 0;
+  color: #2b3c31;
+  font:
+    700 14px "Manrope",
+    sans-serif;
+}
+.review-card p {
+  margin: 7px 0 0;
+  color: #65756a;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.review-pros-cons {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #edf0ed;
+}
+.review-pros-cons p {
+  margin: 4px 0;
+}
+.review-response {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #f2f7f3;
+}
+.review-response strong {
+  color: #4f7f68;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.review-response p {
+  margin: 5px 0 0;
+}
+.review-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 11px;
+  color: #a3ada5;
+  font-size: 11px;
+}
+.review-load-more {
+  display: block;
+  margin: 16px auto 0;
+}

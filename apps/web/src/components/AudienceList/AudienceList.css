@@ -1,0 +1,17 @@
+.audience-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.audience-chip {
+  border: 1px solid #dce8de;
+  border-radius: 999px;
+  padding: 7px 13px;
+  background: #f2f7f3;
+  color: #416c52;
+  font-size: 12px;
+  font-weight: 600;
+}

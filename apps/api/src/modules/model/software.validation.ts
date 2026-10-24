@@ -36,3 +36,15 @@ export const listSoftwareQuery = z
   })
   .strict();
 export type ListSoftwareQuery = z.infer<typeof listSoftwareQuery>;
+
+export const listReviewsQuery = z
+  .object({
+    page: z.coerce.number().int().min(1).optional().default(1),
+    limit: z.coerce.number().int().min(1).max(50).optional().default(10),
+    sort: z
+      .enum(["newest", "highest", "lowest", "helpful"])
+      .optional()
+      .default("newest"),
+  })
+  .strict();
+export type ListReviewsQuery = z.infer<typeof listReviewsQuery>;

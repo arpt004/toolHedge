@@ -4,7 +4,7 @@ import {
   FeatureSection,
 } from "./software.types";
 import { enrichPricing, formatIntervalLabel } from "./pricing";
-import { ListSoftwareQuery } from "./software.validation";
+import { ListReviewsQuery, ListSoftwareQuery } from "./software.validation";
 
 const repository = new PrismaSoftwareRepository();
 
@@ -53,6 +53,9 @@ export const softwareService = {
   },
   async suggest(q: string) {
     return repository.suggest(q);
+  },
+  async listReviews(slug: string, query: ListReviewsQuery) {
+    return repository.listReviews(slug, query);
   },
   async compare(slugs: string[]) {
     const [records, featureSections] = await Promise.all([

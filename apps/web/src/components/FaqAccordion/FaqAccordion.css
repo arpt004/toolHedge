@@ -1,0 +1,38 @@
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.faq-item {
+  border: 1px solid #e6ece7;
+  border-radius: 10px;
+  padding: 13px 16px;
+  background: white;
+}
+.faq-item summary {
+  cursor: pointer;
+  color: #2b3c31;
+  font:
+    700 13px "Manrope",
+    sans-serif;
+  list-style: none;
+}
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+.faq-item summary::before {
+  content: "+";
+  display: inline-block;
+  width: 14px;
+  color: #4f7f68;
+  font-weight: 700;
+}
+.faq-item[open] summary::before {
+  content: "−";
+}
+.faq-item p {
+  margin: 9px 0 0 14px;
+  color: #748178;
+  font-size: 13px;
+  line-height: 1.7;
+}

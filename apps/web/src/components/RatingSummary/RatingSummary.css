@@ -1,0 +1,112 @@
+.rating-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+}
+.rating-block {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 180px;
+}
+.rating-headline {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  color: #293b2f;
+  font:
+    800 32px "Manrope",
+    sans-serif;
+}
+.rating-headline span {
+  color: #a3ada5;
+  font-size: 13px;
+  font-weight: 600;
+}
+.rating-source-label {
+  margin: 4px 0 0;
+  color: #8a968d;
+  font-size: 11px;
+}
+.rating-stars {
+  position: relative;
+  display: inline-block;
+  width: 86px;
+  height: 14px;
+  background: repeating-linear-gradient(
+    90deg,
+    #e4ebe5 0 14px,
+    transparent 14px 17.2px
+  );
+  mask-image: radial-gradient(circle at 7px 7px, black 6px, transparent 6.5px);
+  mask-repeat: repeat-x;
+  mask-size: 17.2px 14px;
+}
+.rating-stars-fill {
+  position: absolute;
+  inset: 0;
+  background: #e2a93d;
+}
+.rating-dimension-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 220px;
+}
+.rating-dimension-list li {
+  display: grid;
+  grid-template-columns: 1fr 86px 28px;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: #5c6b61;
+}
+.rating-dimension-list small {
+  color: #8a968d;
+  font-size: 11px;
+  text-align: right;
+}
+.rating-distribution {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 220px;
+}
+.rating-distribution li {
+  display: grid;
+  grid-template-columns: 24px 1fr 20px;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #8a968d;
+}
+.rating-distribution-track {
+  height: 6px;
+  border-radius: 999px;
+  background: #eef2ee;
+  overflow: hidden;
+}
+.rating-distribution-fill {
+  display: block;
+  height: 100%;
+  background: #4f7f68;
+  border-radius: 999px;
+}
+.rating-distribution-count {
+  text-align: right;
+}
+.rating-external {
+  border-top: 1px solid #edf0ed;
+  padding-top: 12px;
+}
+@media (max-width: 640px) {
+  .rating-summary {
+    gap: 20px;
+  }
+}

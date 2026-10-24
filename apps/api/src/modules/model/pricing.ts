@@ -9,6 +9,14 @@ export interface RawPlanPrice {
   currency: string;
   note: string | null;
 }
+export type PlanType =
+  | "FREE"
+  | "TRIAL"
+  | "PAID"
+  | "ENTERPRISE"
+  | "CUSTOM"
+  | "CONTACT_SALES";
+
 export interface RawPlan {
   slug: string;
   name: string;
@@ -21,6 +29,11 @@ export interface RawPlan {
   highlights: string[];
   position?: number;
   prices: RawPlanPrice[];
+  planType: PlanType;
+  limits: unknown;
+  isAvailable: boolean;
+  lastVerifiedAt: Date | string | null;
+  refundPolicyUrl: string | null;
 }
 export interface ApiPlanPrice extends RawPlanPrice {
   monthlyEquivalent: number | null;

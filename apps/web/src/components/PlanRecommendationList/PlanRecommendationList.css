@@ -1,0 +1,40 @@
+.plan-rec-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+.plan-rec-card {
+  border: 1px solid #dfeade;
+  border-radius: 12px;
+  padding: 15px 16px;
+  background: #f6faf7;
+}
+.plan-rec-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.plan-rec-scenario {
+  color: #2b3c31;
+  font:
+    700 12.5px "Manrope",
+    sans-serif;
+}
+.plan-rec-card p {
+  margin: 8px 0 0;
+  color: #65756a;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.plan-rec-card p.plan-rec-profile {
+  color: #5c6b61;
+  font-weight: 600;
+}
+.plan-rec-card small {
+  display: block;
+  margin-top: 8px;
+  color: #96a39b;
+  font-size: 10.5px;
+  text-transform: capitalize;
+}

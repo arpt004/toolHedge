@@ -15,6 +15,8 @@ export interface PlanPrice {
   label: string;
 }
 
+export type PlanType = 'FREE' | 'TRIAL' | 'PAID' | 'ENTERPRISE' | 'CUSTOM' | 'CONTACT_SALES';
+
 export interface Plan {
   slug: string;
   name: string;
@@ -27,6 +29,11 @@ export interface Plan {
   highlights: string[];
   position?: number;
   prices: PlanPrice[];
+  planType: PlanType;
+  limits: unknown;
+  isAvailable: boolean;
+  lastVerifiedAt: string | null;
+  refundPolicyUrl: string | null;
 }
 
 export interface PricingSummary {
@@ -37,6 +44,148 @@ export interface PricingSummary {
   billingOptions: string[];
   hasCustomPricing: boolean;
   hasOneTimeOrLifetime: boolean;
+}
+
+export interface Company {
+  slug: string;
+  name: string;
+  websiteUrl: string | null;
+  headquarters: string | null;
+  foundedYear: number | null;
+  companySize: string | null;
+  description: string | null;
+}
+export type LinkType =
+  | 'DOCS' | 'DEMO' | 'SIGNUP' | 'SUPPORT' | 'PRIVACY' | 'TOS' | 'API_DOCS' | 'CHANGELOG'
+  | 'TWITTER' | 'LINKEDIN' | 'GITHUB' | 'YOUTUBE' | 'DISCORD' | 'FACEBOOK' | 'INSTAGRAM';
+export interface SoftwareLink {
+  type: LinkType;
+  url: string;
+  label: string | null;
+}
+export interface SoftwareMedia {
+  type: 'COVER' | 'SCREENSHOT' | 'VIDEO';
+  url: string;
+  altText: string | null;
+  caption: string | null;
+  position: number;
+}
+export interface Audience {
+  slug: string;
+  name: string;
+}
+export interface PlanRef {
+  slug: string;
+  name: string;
+}
+export interface Capability {
+  slug: string;
+  name: string;
+  shortDescription: string;
+  detailedDescription: string | null;
+  category: string | null;
+  benefits: string[];
+  docUrl: string | null;
+  isVerified: boolean;
+  availabilityStatus: 'AVAILABLE' | 'PLANNED' | 'UNAVAILABLE';
+  minPlan: PlanRef | null;
+}
+export interface UseCase {
+  slug: string;
+  name: string;
+  description: string;
+  problem: string | null;
+  industry: string | null;
+  suggestedPlan: PlanRef | null;
+  difficultyLevel: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+  estimatedEffort: string | null;
+}
+export interface ProCon {
+  type: 'PRO' | 'CON';
+  description: string;
+  category: string | null;
+  severity: number | null;
+  isEditorial: boolean;
+  segment: string | null;
+}
+export interface Takeaway {
+  mainValueProp: string | null;
+  biggestStrength: string | null;
+  bestUseCase: string | null;
+  bestFitAudience: string | null;
+  standoutFeature: string | null;
+  pricingTakeaway: string | null;
+  mainLimitation: string | null;
+  bestReasonToChoose: string | null;
+  importantConsideration: string | null;
+}
+export interface Faq {
+  question: string;
+  answer: string;
+}
+export type RelationshipType =
+  | 'ALTERNATIVE' | 'COMPETITOR' | 'SIMILAR' | 'INTEGRATION'
+  | 'COMPLEMENTARY' | 'REPLACEMENT' | 'PREREQUISITE';
+export interface RelatedSoftwareRef {
+  slug: string;
+  name: string;
+  tagline: string;
+  logoUrl: string | null;
+  pricingType: PricingType;
+}
+export interface SoftwareRelationship {
+  type: RelationshipType;
+  reason: string | null;
+  software: RelatedSoftwareRef;
+}
+export type RatingDimension =
+  | 'OVERALL' | 'EASE_OF_USE' | 'FEATURES' | 'VALUE' | 'SUPPORT'
+  | 'PERFORMANCE' | 'USER_EXPERIENCE' | 'INTEGRATION';
+export interface Rating {
+  dimension: RatingDimension;
+  score: number;
+  maxScore: number;
+  source: 'EDITORIAL' | 'EXTERNAL' | 'USER_AGGREGATE';
+  sourceName: string | null;
+  reviewCount: number | null;
+  calculationMethod: string | null;
+  calculatedAt: string;
+}
+export interface PlanRecommendation {
+  scenario: string;
+  recommendedPlan: PlanRef;
+  reasons: string;
+  targetProfile: string | null;
+  confidenceLevel: 'LOW' | 'MEDIUM' | 'HIGH' | null;
+  lastReviewedAt: string | null;
+}
+export interface ReviewSummary {
+  average: number | null;
+  count: number;
+  distribution: Record<1 | 2 | 3 | 4 | 5, number>;
+}
+export interface Review {
+  id: number;
+  displayName: string | null;
+  rating: number;
+  ratingDimensions: Record<string, number> | null;
+  title: string | null;
+  body: string;
+  pros: string | null;
+  cons: string | null;
+  useCase: string | null;
+  userRole: string | null;
+  companySize: string | null;
+  verifiedStatus: 'UNVERIFIED' | 'VERIFIED_USER' | 'VERIFIED_PURCHASE';
+  reviewDate: string;
+  helpfulVotes: number;
+  publisherResponse: string | null;
+}
+export interface ReviewPage {
+  items: Review[];
+  page: number;
+  limit: number;
+  total: number;
 }
 
 export interface Software {
@@ -60,6 +209,36 @@ export interface Software {
   pricingSummary?: PricingSummary;
   createdAt: string;
   updatedAt: string;
+  // Stage 1 profile fields (detail view only)
+  longDescription?: string | null;
+  overview?: string | null;
+  howItWorks?: string | null;
+  status?: 'ACTIVE' | 'BETA' | 'DISCONTINUED' | 'ACQUIRED';
+  launchDate?: string | null;
+  lastVerifiedAt?: string | null;
+  lastMajorUpdateAt?: string | null;
+  headquarters?: string | null;
+  supportedLanguages?: string[];
+  supportedRegions?: string[];
+  deploymentOptions?: Array<'CLOUD' | 'ON_PREMISES' | 'SELF_HOSTED' | 'HYBRID'>;
+  hasFreeTrial?: boolean;
+  hasFreePlan?: boolean;
+  isOpenSource?: boolean;
+  licenseType?: string | null;
+  categoryAttributes?: Record<string, unknown> | null;
+  company?: Company | null;
+  links?: SoftwareLink[];
+  media?: SoftwareMedia[];
+  audiences?: Audience[];
+  capabilities?: Capability[];
+  useCases?: UseCase[];
+  prosCons?: ProCon[];
+  takeaway?: Takeaway | null;
+  faqs?: Faq[];
+  relationships?: SoftwareRelationship[];
+  ratings?: Rating[];
+  planRecommendations?: PlanRecommendation[];
+  reviewSummary?: ReviewSummary;
 }
 
 export interface SoftwareList {

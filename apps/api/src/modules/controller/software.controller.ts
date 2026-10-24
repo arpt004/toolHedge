@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { z } from "zod";
 import { softwareService } from "../model/software.service";
-import { listSoftwareQuery } from "../model/software.validation";
+import { listReviewsQuery, listSoftwareQuery } from "../model/software.validation";
 
 export const listSoftware: RequestHandler = async (req, res, next) => {
   try {
@@ -28,6 +28,18 @@ export const getSoftware: RequestHandler = async (req, res, next) => {
     }
     const { pricingSummary, ...record } = item;
     res.json({ ...record, pricingSummary });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const listSoftwareReviews: RequestHandler = async (req, res, next) => {
+  try {
+    const { slug } = z
+      .object({ slug: z.string().min(1).max(160) })
+      .parse(req.params);
+    const query = listReviewsQuery.parse(req.query);
+    res.json(await softwareService.listReviews(slug, query));
   } catch (error) {
     next(error);
   }

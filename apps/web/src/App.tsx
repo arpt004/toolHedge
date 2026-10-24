@@ -154,7 +154,15 @@ export default function App() {
           path="/compare"
           element={<ComparePage onSelectionChange={syncSelection} />}
         />
-        <Route path="/software/:slug" element={<SoftwareDetailsPage />} />
+        <Route
+          path="/software/:slug"
+          element={
+            <SoftwareDetailsPage
+              selectedSlugs={selectedSlugs}
+              onToggleCompare={toggleCompare}
+            />
+          }
+        />
         <Route
           path="*"
           element={

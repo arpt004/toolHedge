@@ -1,0 +1,36 @@
+.use-case-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+.use-case-card {
+  border: 1px solid #e6ece7;
+  border-radius: 12px;
+  padding: 16px;
+  background: white;
+}
+.use-case-card h3 {
+  margin: 0 0 7px;
+  color: #2b3c31;
+  font:
+    700 14px "Manrope",
+    sans-serif;
+}
+.use-case-card p {
+  margin: 0;
+  color: #748178;
+  font-size: 12.5px;
+  line-height: 1.65;
+}
+.use-case-card p.use-case-problem {
+  margin-top: 7px;
+}
+.use-case-problem strong {
+  color: #4a5750;
+}
+.use-case-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 12px;
+}
