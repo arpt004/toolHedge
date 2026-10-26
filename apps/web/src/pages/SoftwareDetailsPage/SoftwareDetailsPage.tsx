@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api } from "../../api/client";
+import { useOptionalAdminSession } from "../../admin/useOptionalAdminSession";
 import { SITE_NAME, SITE_TAGLINE } from "../../config/site";
 import { Software } from "../../types/software";
 import { useDocumentSeo, useJsonLd } from "../../hooks/seo";
@@ -72,6 +73,7 @@ export function SoftwareDetailsPage({
   const { slug = "" } = useParams();
   const [software, setSoftware] = useState<Software | null>(null);
   const [error, setError] = useState("");
+  const admin = useOptionalAdminSession();
   useEffect(() => {
     let active = true;
     setSoftware(null);
@@ -298,6 +300,11 @@ export function SoftwareDetailsPage({
             )}
           </div>
           <div className="detail-top-actions">
+            {admin && (
+              <Link className="button button-secondary" to={`/admin/products/${software.id}/edit`}>
+                ✎ Edit product
+              </Link>
+            )}
             <VisitSiteLink url={visitUrl} />
             {demoOrSignup && (
               <a

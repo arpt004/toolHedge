@@ -1,4 +1,5 @@
 -- Consolidated baseline migration.
+-- admin@toolhedge.dev / ChangeMe123! 
 --
 -- Replaces the previous history (20261024000000_init,
 -- 20261024143740_verification_trending) with one CREATE-only script that
