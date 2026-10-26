@@ -1,12 +1,14 @@
 -- Consolidated baseline migration.
--- admin@toolhedge.dev / ChangeMe123! 
+-- admin@toolhedge.dev / ChangeMe123!
 --
 -- Replaces the previous history (20261024000000_init,
--- 20261024143740_verification_trending) with one CREATE-only script that
--- builds the full current schema from an empty database. Foreign keys are
--- defined inline on each CREATE TABLE (tables ordered so every referenced
--- table is created first) instead of as separate ALTER TABLE statements —
--- no ALTER statements of any kind remain in this file.
+-- 20261024143740_verification_trending, 20261026153256_add_admin_auth_and_filters)
+-- with one CREATE-only script that builds the full current schema —
+-- including the admin auth, column-preference, and filter tables — from an
+-- empty database. Foreign keys are defined inline on each CREATE TABLE
+-- (tables ordered so every referenced table is created first) instead of
+-- as separate ALTER TABLE statements — no ALTER statements of any kind
+-- remain in this file.
 --
 -- The live database already has this exact schema; this migration was
 -- applied via `prisma migrate resolve --applied` rather than executed,
@@ -78,6 +80,15 @@ CREATE TYPE "ModerationStatus" AS ENUM ('PENDING', 'PUBLISHED', 'REJECTED', 'FLA
 -- CreateEnum
 CREATE TYPE "PlanType" AS ENUM ('FREE', 'TRIAL', 'PAID', 'ENTERPRISE', 'CUSTOM', 'CONTACT_SALES');
 
+-- CreateEnum
+CREATE TYPE "AdminRole" AS ENUM ('ADMIN', 'SUPER_ADMIN');
+
+-- CreateEnum
+CREATE TYPE "FilterType" AS ENUM ('CHECKBOX', 'SINGLE_SELECT', 'BOOLEAN', 'RANGE');
+
+-- CreateEnum
+CREATE TYPE "FilterSourceType" AS ENUM ('PRICING_TYPE', 'PLATFORM', 'TAG', 'FEATURE');
+
 -- CreateTable (no FKs)
 CREATE TABLE "Company" (
     "id" SERIAL NOT NULL,
@@ -108,6 +119,8 @@ CREATE TABLE "Category" (
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "icon" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
 );
@@ -471,6 +484,76 @@ CREATE TABLE "_CategoryToSoftware" (
     CONSTRAINT "_CategoryToSoftware_B_fkey" FOREIGN KEY ("B") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+-- CreateTable (no FKs)
+CREATE TABLE "AdminUser" (
+    "id" SERIAL NOT NULL,
+    "email" TEXT NOT NULL,
+    "passwordHash" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "role" "AdminRole" NOT NULL DEFAULT 'ADMIN',
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "lastLoginAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "AdminUser_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable (FK: adminId -> AdminUser)
+CREATE TABLE "AdminSession" (
+    "id" TEXT NOT NULL,
+    "adminId" INTEGER NOT NULL,
+    "tokenHash" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "lastSeenAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "userAgent" TEXT,
+    "ipAddress" TEXT,
+
+    CONSTRAINT "AdminSession_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "AdminSession_adminId_fkey" FOREIGN KEY ("adminId") REFERENCES "AdminUser"("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable (FK: adminId -> AdminUser)
+CREATE TABLE "AdminColumnPreference" (
+    "id" SERIAL NOT NULL,
+    "adminId" INTEGER NOT NULL,
+    "tableKey" TEXT NOT NULL,
+    "columns" JSONB NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "AdminColumnPreference_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "AdminColumnPreference_adminId_fkey" FOREIGN KEY ("adminId") REFERENCES "AdminUser"("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable (FK: featureId -> Feature)
+CREATE TABLE "FilterDefinition" (
+    "id" SERIAL NOT NULL,
+    "key" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "type" "FilterType" NOT NULL,
+    "sourceType" "FilterSourceType" NOT NULL,
+    "featureId" INTEGER,
+    "options" JSONB,
+    "isEnabled" BOOLEAN NOT NULL DEFAULT true,
+    "displayOrder" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "FilterDefinition_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "FilterDefinition_featureId_fkey" FOREIGN KEY ("featureId") REFERENCES "Feature"("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateTable (FK: A -> Category, B -> FilterDefinition)
+CREATE TABLE "_FilterCategories" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL,
+
+    CONSTRAINT "_FilterCategories_AB_pkey" PRIMARY KEY ("A","B"),
+    CONSTRAINT "_FilterCategories_A_fkey" FOREIGN KEY ("A") REFERENCES "Category"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "_FilterCategories_B_fkey" FOREIGN KEY ("B") REFERENCES "FilterDefinition"("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Software_slug_key" ON "Software"("slug");
 
@@ -581,3 +664,24 @@ CREATE INDEX "_SoftwareToTag_B_index" ON "_SoftwareToTag"("B");
 
 -- CreateIndex
 CREATE INDEX "_CategoryToSoftware_B_index" ON "_CategoryToSoftware"("B");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AdminUser_email_key" ON "AdminUser"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AdminSession_tokenHash_key" ON "AdminSession"("tokenHash");
+
+-- CreateIndex
+CREATE INDEX "AdminSession_adminId_idx" ON "AdminSession"("adminId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AdminColumnPreference_adminId_tableKey_key" ON "AdminColumnPreference"("adminId", "tableKey");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "FilterDefinition_key_key" ON "FilterDefinition"("key");
+
+-- CreateIndex
+CREATE INDEX "FilterDefinition_isEnabled_displayOrder_idx" ON "FilterDefinition"("isEnabled", "displayOrder");
+
+-- CreateIndex
+CREATE INDEX "_FilterCategories_B_index" ON "_FilterCategories"("B");
