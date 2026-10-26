@@ -1,12 +1,11 @@
 -- Consolidated baseline migration.
 --
--- Replaces the previous incremental history (20261012000000_init,
--- 20261012010000_categories_tags, 20261012020000_comparison_features,
--- 20261014000000_pricing_plans, 20261024093948_software_profile_foundation,
--- 20261024125004_restore_trgm_index) with one CREATE-only script that
--- builds the full current schema from an empty database. No ALTER
--- statements from schema evolution remain — only the FOREIGN KEY
--- constraint ALTERs that Postgres requires after tables exist.
+-- Replaces the previous history (20261024000000_init,
+-- 20261024143740_verification_trending) with one CREATE-only script that
+-- builds the full current schema from an empty database. Foreign keys are
+-- defined inline on each CREATE TABLE (tables ordered so every referenced
+-- table is created first) instead of as separate ALTER TABLE statements —
+-- no ALTER statements of any kind remain in this file.
 --
 -- The live database already has this exact schema; this migration was
 -- applied via `prisma migrate resolve --applied` rather than executed,
@@ -78,7 +77,76 @@ CREATE TYPE "ModerationStatus" AS ENUM ('PENDING', 'PUBLISHED', 'REJECTED', 'FLA
 -- CreateEnum
 CREATE TYPE "PlanType" AS ENUM ('FREE', 'TRIAL', 'PAID', 'ENTERPRISE', 'CUSTOM', 'CONTACT_SALES');
 
--- CreateTable
+-- CreateTable (no FKs)
+CREATE TABLE "Company" (
+    "id" SERIAL NOT NULL,
+    "slug" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "websiteUrl" TEXT,
+    "headquarters" TEXT,
+    "foundedYear" INTEGER,
+    "companySize" "CompanySize",
+    "description" TEXT,
+
+    CONSTRAINT "Company_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable (no FKs)
+CREATE TABLE "FeatureGroup" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "sortOrder" INTEGER NOT NULL DEFAULT 0,
+
+    CONSTRAINT "FeatureGroup_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable (no FKs)
+CREATE TABLE "Category" (
+    "id" SERIAL NOT NULL,
+    "slug" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "icon" TEXT NOT NULL,
+
+    CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable (no FKs)
+CREATE TABLE "Tag" (
+    "id" SERIAL NOT NULL,
+    "slug" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+
+    CONSTRAINT "Tag_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable (no FKs)
+CREATE TABLE "Audience" (
+    "id" SERIAL NOT NULL,
+    "slug" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+
+    CONSTRAINT "Audience_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable (no FKs)
+CREATE TABLE "Capability" (
+    "id" SERIAL NOT NULL,
+    "slug" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "shortDescription" TEXT NOT NULL,
+    "detailedDescription" TEXT,
+    "category" TEXT,
+    "benefits" TEXT[],
+    "docUrl" TEXT,
+    "isVerified" BOOLEAN NOT NULL DEFAULT false,
+    "sourceUrl" TEXT,
+    "lastVerifiedAt" TIMESTAMP(3),
+
+    CONSTRAINT "Capability_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable (FK: companyId -> Company)
 CREATE TABLE "Software" (
     "id" SERIAL NOT NULL,
     "slug" TEXT NOT NULL,
@@ -114,12 +182,29 @@ CREATE TABLE "Software" (
     "isOpenSource" BOOLEAN NOT NULL DEFAULT false,
     "licenseType" TEXT,
     "categoryAttributes" JSONB,
+    "isVerified" BOOLEAN NOT NULL DEFAULT false,
+    "verifiedAt" TIMESTAMP(3),
+    "trendingStartAt" TIMESTAMP(3),
+    "trendingEndAt" TIMESTAMP(3),
     "companyId" INTEGER,
 
-    CONSTRAINT "Software_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Software_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "Software_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
--- CreateTable
+-- CreateTable (FK: groupId -> FeatureGroup)
+CREATE TABLE "Feature" (
+    "id" SERIAL NOT NULL,
+    "slug" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "groupId" INTEGER NOT NULL,
+
+    CONSTRAINT "Feature_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "Feature_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "FeatureGroup"("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable (FK: softwareId -> Software)
 CREATE TABLE "Plan" (
     "id" SERIAL NOT NULL,
     "softwareId" INTEGER NOT NULL,
@@ -140,10 +225,11 @@ CREATE TABLE "Plan" (
     "sourceUrl" TEXT,
     "refundPolicyUrl" TEXT,
 
-    CONSTRAINT "Plan_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Plan_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "Plan_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- CreateTable
+-- CreateTable (FK: planId -> Plan)
 CREATE TABLE "PlanPrice" (
     "id" SERIAL NOT NULL,
     "planId" INTEGER NOT NULL,
@@ -154,50 +240,11 @@ CREATE TABLE "PlanPrice" (
     "currency" TEXT NOT NULL,
     "note" TEXT,
 
-    CONSTRAINT "PlanPrice_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "PlanPrice_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "PlanPrice_planId_fkey" FOREIGN KEY ("planId") REFERENCES "Plan"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- CreateTable
-CREATE TABLE "Category" (
-    "id" SERIAL NOT NULL,
-    "slug" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-    "icon" TEXT NOT NULL,
-
-    CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Tag" (
-    "id" SERIAL NOT NULL,
-    "slug" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-
-    CONSTRAINT "Tag_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "FeatureGroup" (
-    "id" SERIAL NOT NULL,
-    "name" TEXT NOT NULL,
-    "sortOrder" INTEGER NOT NULL DEFAULT 0,
-
-    CONSTRAINT "FeatureGroup_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Feature" (
-    "id" SERIAL NOT NULL,
-    "slug" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "type" TEXT NOT NULL,
-    "groupId" INTEGER NOT NULL,
-
-    CONSTRAINT "Feature_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
+-- CreateTable (FK: softwareId -> Software, featureId -> Feature)
 CREATE TABLE "SoftwareFeature" (
     "softwareId" INTEGER NOT NULL,
     "featureId" INTEGER NOT NULL,
@@ -205,24 +252,12 @@ CREATE TABLE "SoftwareFeature" (
     "valueText" TEXT,
     "valueNum" DOUBLE PRECISION,
 
-    CONSTRAINT "SoftwareFeature_pkey" PRIMARY KEY ("softwareId","featureId")
+    CONSTRAINT "SoftwareFeature_pkey" PRIMARY KEY ("softwareId","featureId"),
+    CONSTRAINT "SoftwareFeature_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "SoftwareFeature_featureId_fkey" FOREIGN KEY ("featureId") REFERENCES "Feature"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- CreateTable
-CREATE TABLE "Company" (
-    "id" SERIAL NOT NULL,
-    "slug" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "websiteUrl" TEXT,
-    "headquarters" TEXT,
-    "foundedYear" INTEGER,
-    "companySize" "CompanySize",
-    "description" TEXT,
-
-    CONSTRAINT "Company_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
+-- CreateTable (FK: softwareId -> Software)
 CREATE TABLE "SoftwareLink" (
     "id" SERIAL NOT NULL,
     "softwareId" INTEGER NOT NULL,
@@ -230,10 +265,11 @@ CREATE TABLE "SoftwareLink" (
     "url" TEXT NOT NULL,
     "label" TEXT,
 
-    CONSTRAINT "SoftwareLink_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "SoftwareLink_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "SoftwareLink_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- CreateTable
+-- CreateTable (FK: softwareId -> Software)
 CREATE TABLE "SoftwareMedia" (
     "id" SERIAL NOT NULL,
     "softwareId" INTEGER NOT NULL,
@@ -243,44 +279,21 @@ CREATE TABLE "SoftwareMedia" (
     "caption" TEXT,
     "position" INTEGER NOT NULL DEFAULT 0,
 
-    CONSTRAINT "SoftwareMedia_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "SoftwareMedia_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "SoftwareMedia_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- CreateTable
-CREATE TABLE "Audience" (
-    "id" SERIAL NOT NULL,
-    "slug" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-
-    CONSTRAINT "Audience_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
+-- CreateTable (FK: softwareId -> Software, audienceId -> Audience)
 CREATE TABLE "SoftwareAudience" (
     "softwareId" INTEGER NOT NULL,
     "audienceId" INTEGER NOT NULL,
 
-    CONSTRAINT "SoftwareAudience_pkey" PRIMARY KEY ("softwareId","audienceId")
+    CONSTRAINT "SoftwareAudience_pkey" PRIMARY KEY ("softwareId","audienceId"),
+    CONSTRAINT "SoftwareAudience_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "SoftwareAudience_audienceId_fkey" FOREIGN KEY ("audienceId") REFERENCES "Audience"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- CreateTable
-CREATE TABLE "Capability" (
-    "id" SERIAL NOT NULL,
-    "slug" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "shortDescription" TEXT NOT NULL,
-    "detailedDescription" TEXT,
-    "category" TEXT,
-    "benefits" TEXT[],
-    "docUrl" TEXT,
-    "isVerified" BOOLEAN NOT NULL DEFAULT false,
-    "sourceUrl" TEXT,
-    "lastVerifiedAt" TIMESTAMP(3),
-
-    CONSTRAINT "Capability_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
+-- CreateTable (FK: softwareId -> Software, capabilityId -> Capability, minPlanId -> Plan)
 CREATE TABLE "SoftwareCapability" (
     "id" SERIAL NOT NULL,
     "softwareId" INTEGER NOT NULL,
@@ -289,10 +302,13 @@ CREATE TABLE "SoftwareCapability" (
     "minPlanId" INTEGER,
     "position" INTEGER NOT NULL DEFAULT 0,
 
-    CONSTRAINT "SoftwareCapability_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "SoftwareCapability_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "SoftwareCapability_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "SoftwareCapability_capabilityId_fkey" FOREIGN KEY ("capabilityId") REFERENCES "Capability"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "SoftwareCapability_minPlanId_fkey" FOREIGN KEY ("minPlanId") REFERENCES "Plan"("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
--- CreateTable
+-- CreateTable (FK: softwareId -> Software, suggestedPlanId -> Plan)
 CREATE TABLE "UseCase" (
     "id" SERIAL NOT NULL,
     "softwareId" INTEGER NOT NULL,
@@ -306,10 +322,12 @@ CREATE TABLE "UseCase" (
     "estimatedEffort" TEXT,
     "position" INTEGER NOT NULL DEFAULT 0,
 
-    CONSTRAINT "UseCase_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "UseCase_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "UseCase_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "UseCase_suggestedPlanId_fkey" FOREIGN KEY ("suggestedPlanId") REFERENCES "Plan"("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
--- CreateTable
+-- CreateTable (FK: softwareId -> Software)
 CREATE TABLE "SoftwareProCon" (
     "id" SERIAL NOT NULL,
     "softwareId" INTEGER NOT NULL,
@@ -322,10 +340,11 @@ CREATE TABLE "SoftwareProCon" (
     "lastVerifiedAt" TIMESTAMP(3),
     "position" INTEGER NOT NULL DEFAULT 0,
 
-    CONSTRAINT "SoftwareProCon_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "SoftwareProCon_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "SoftwareProCon_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- CreateTable
+-- CreateTable (FK: softwareId -> Software)
 CREATE TABLE "SoftwareTakeaway" (
     "id" SERIAL NOT NULL,
     "softwareId" INTEGER NOT NULL,
@@ -339,10 +358,11 @@ CREATE TABLE "SoftwareTakeaway" (
     "bestReasonToChoose" TEXT,
     "importantConsideration" TEXT,
 
-    CONSTRAINT "SoftwareTakeaway_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "SoftwareTakeaway_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "SoftwareTakeaway_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- CreateTable
+-- CreateTable (FK: softwareId -> Software)
 CREATE TABLE "SoftwareFaq" (
     "id" SERIAL NOT NULL,
     "softwareId" INTEGER NOT NULL,
@@ -350,10 +370,11 @@ CREATE TABLE "SoftwareFaq" (
     "answer" TEXT NOT NULL,
     "position" INTEGER NOT NULL DEFAULT 0,
 
-    CONSTRAINT "SoftwareFaq_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "SoftwareFaq_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "SoftwareFaq_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- CreateTable
+-- CreateTable (FK: fromSoftwareId -> Software, toSoftwareId -> Software)
 CREATE TABLE "SoftwareRelationship" (
     "id" SERIAL NOT NULL,
     "fromSoftwareId" INTEGER NOT NULL,
@@ -362,10 +383,12 @@ CREATE TABLE "SoftwareRelationship" (
     "reason" TEXT,
     "position" INTEGER NOT NULL DEFAULT 0,
 
-    CONSTRAINT "SoftwareRelationship_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "SoftwareRelationship_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "SoftwareRelationship_fromSoftwareId_fkey" FOREIGN KEY ("fromSoftwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "SoftwareRelationship_toSoftwareId_fkey" FOREIGN KEY ("toSoftwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- CreateTable
+-- CreateTable (FK: softwareId -> Software)
 CREATE TABLE "Rating" (
     "id" SERIAL NOT NULL,
     "softwareId" INTEGER NOT NULL,
@@ -378,10 +401,11 @@ CREATE TABLE "Rating" (
     "calculationMethod" TEXT,
     "calculatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "Rating_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Rating_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "Rating_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- CreateTable
+-- CreateTable (FK: softwareId -> Software, recommendedPlanId -> Plan)
 CREATE TABLE "PlanRecommendation" (
     "id" SERIAL NOT NULL,
     "softwareId" INTEGER NOT NULL,
@@ -392,10 +416,12 @@ CREATE TABLE "PlanRecommendation" (
     "confidenceLevel" "ConfidenceLevel",
     "lastReviewedAt" TIMESTAMP(3),
 
-    CONSTRAINT "PlanRecommendation_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "PlanRecommendation_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "PlanRecommendation_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "PlanRecommendation_recommendedPlanId_fkey" FOREIGN KEY ("recommendedPlanId") REFERENCES "Plan"("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
--- CreateTable
+-- CreateTable (FK: softwareId -> Software)
 CREATE TABLE "Review" (
     "id" SERIAL NOT NULL,
     "softwareId" INTEGER NOT NULL,
@@ -420,23 +446,28 @@ CREATE TABLE "Review" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Review_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Review_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "Review_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- CreateTable
+-- CreateTable (FK: A -> Software, B -> Tag)
 CREATE TABLE "_SoftwareToTag" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL,
 
-    CONSTRAINT "_SoftwareToTag_AB_pkey" PRIMARY KEY ("A","B")
+    CONSTRAINT "_SoftwareToTag_AB_pkey" PRIMARY KEY ("A","B"),
+    CONSTRAINT "_SoftwareToTag_A_fkey" FOREIGN KEY ("A") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "_SoftwareToTag_B_fkey" FOREIGN KEY ("B") REFERENCES "Tag"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- CreateTable
+-- CreateTable (FK: A -> Category, B -> Software)
 CREATE TABLE "_CategoryToSoftware" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL,
 
-    CONSTRAINT "_CategoryToSoftware_AB_pkey" PRIMARY KEY ("A","B")
+    CONSTRAINT "_CategoryToSoftware_AB_pkey" PRIMARY KEY ("A","B"),
+    CONSTRAINT "_CategoryToSoftware_A_fkey" FOREIGN KEY ("A") REFERENCES "Category"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "_CategoryToSoftware_B_fkey" FOREIGN KEY ("B") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateIndex
@@ -549,88 +580,3 @@ CREATE INDEX "_SoftwareToTag_B_index" ON "_SoftwareToTag"("B");
 
 -- CreateIndex
 CREATE INDEX "_CategoryToSoftware_B_index" ON "_CategoryToSoftware"("B");
-
--- AddForeignKey
-ALTER TABLE "Software" ADD CONSTRAINT "Software_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Plan" ADD CONSTRAINT "Plan_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "PlanPrice" ADD CONSTRAINT "PlanPrice_planId_fkey" FOREIGN KEY ("planId") REFERENCES "Plan"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Feature" ADD CONSTRAINT "Feature_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "FeatureGroup"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "SoftwareFeature" ADD CONSTRAINT "SoftwareFeature_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "SoftwareFeature" ADD CONSTRAINT "SoftwareFeature_featureId_fkey" FOREIGN KEY ("featureId") REFERENCES "Feature"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "SoftwareLink" ADD CONSTRAINT "SoftwareLink_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "SoftwareMedia" ADD CONSTRAINT "SoftwareMedia_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "SoftwareAudience" ADD CONSTRAINT "SoftwareAudience_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "SoftwareAudience" ADD CONSTRAINT "SoftwareAudience_audienceId_fkey" FOREIGN KEY ("audienceId") REFERENCES "Audience"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "SoftwareCapability" ADD CONSTRAINT "SoftwareCapability_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "SoftwareCapability" ADD CONSTRAINT "SoftwareCapability_capabilityId_fkey" FOREIGN KEY ("capabilityId") REFERENCES "Capability"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "SoftwareCapability" ADD CONSTRAINT "SoftwareCapability_minPlanId_fkey" FOREIGN KEY ("minPlanId") REFERENCES "Plan"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "UseCase" ADD CONSTRAINT "UseCase_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "UseCase" ADD CONSTRAINT "UseCase_suggestedPlanId_fkey" FOREIGN KEY ("suggestedPlanId") REFERENCES "Plan"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "SoftwareProCon" ADD CONSTRAINT "SoftwareProCon_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "SoftwareTakeaway" ADD CONSTRAINT "SoftwareTakeaway_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "SoftwareFaq" ADD CONSTRAINT "SoftwareFaq_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "SoftwareRelationship" ADD CONSTRAINT "SoftwareRelationship_fromSoftwareId_fkey" FOREIGN KEY ("fromSoftwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "SoftwareRelationship" ADD CONSTRAINT "SoftwareRelationship_toSoftwareId_fkey" FOREIGN KEY ("toSoftwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Rating" ADD CONSTRAINT "Rating_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "PlanRecommendation" ADD CONSTRAINT "PlanRecommendation_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "PlanRecommendation" ADD CONSTRAINT "PlanRecommendation_recommendedPlanId_fkey" FOREIGN KEY ("recommendedPlanId") REFERENCES "Plan"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Review" ADD CONSTRAINT "Review_softwareId_fkey" FOREIGN KEY ("softwareId") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_SoftwareToTag" ADD CONSTRAINT "_SoftwareToTag_A_fkey" FOREIGN KEY ("A") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_SoftwareToTag" ADD CONSTRAINT "_SoftwareToTag_B_fkey" FOREIGN KEY ("B") REFERENCES "Tag"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_CategoryToSoftware" ADD CONSTRAINT "_CategoryToSoftware_A_fkey" FOREIGN KEY ("A") REFERENCES "Category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_CategoryToSoftware" ADD CONSTRAINT "_CategoryToSoftware_B_fkey" FOREIGN KEY ("B") REFERENCES "Software"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
