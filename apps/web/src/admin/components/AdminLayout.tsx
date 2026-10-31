@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../AuthContext';
+import { ThemeToggle } from '../../components/ThemeToggle/ThemeToggle';
 import './AdminLayout.css';
 
 const NAV_ITEMS = [
@@ -34,14 +35,14 @@ export function AdminLayout() {
               className={({ isActive }) => `admin-nav-link${isActive ? ' is-active' : ''}`}
             >
               <span aria-hidden="true">{item.icon}</span>
-              {item.label}
+              <span className="admin-nav-label">{item.label}</span>
             </NavLink>
           ))}
         </nav>
         <div className="admin-sidebar-footer">
           <a href="/" className="admin-nav-link">
             <span aria-hidden="true">↩</span>
-            View site
+            <span className="admin-nav-label">View site</span>
           </a>
         </div>
       </aside>
@@ -49,6 +50,7 @@ export function AdminLayout() {
         <header className="admin-topbar">
           <div />
           <div className="admin-topbar-user">
+            <ThemeToggle />
             <div className="admin-user-chip">
               <span className="admin-user-avatar" aria-hidden="true">
                 {admin?.name?.[0]?.toUpperCase() ?? 'A'}

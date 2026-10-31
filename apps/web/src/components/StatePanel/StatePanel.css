@@ -1,8 +1,8 @@
 .state-panel {
   min-height: 220px;
-  border: 1px dashed #dce5dd;
+  border: 1px dashed var(--color-border-strong);
   border-radius: 13px;
-  background: rgba(255, 255, 255, 0.58);
+  background: rgb(from var(--color-surface) r g b / 0.58);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -16,12 +16,12 @@
   font:
     700 18px "Manrope",
     sans-serif;
-  color: #35483b;
+  color: var(--color-text);
 }
 .state-panel p {
   max-width: 380px;
   margin: 0;
-  color: #8a968d;
+  color: var(--color-text-muted);
   font-size: 13px;
   line-height: 1.6;
 }
@@ -31,7 +31,7 @@
   height: 40px;
   place-items: center;
   border-radius: 13px;
-  background: #edf4ee;
-  color: #5a8367;
+  background: var(--color-surface-sunken);
+  color: var(--brand);
   font-size: 22px;
 }

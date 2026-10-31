@@ -275,13 +275,11 @@ export function BrowsePage({
   return (
     <main className="main-content">
       <section className="hero">
-        <div className="eyebrow">
-          <span className="eyebrow-dot" /> A clearer way to choose
-        </div>
+        <div className="eyebrow">The smarter way to find software</div>
         <h1>
           Find your next
           <br />
-          <span className="text-hedge">favorite tool.</span>
+          <span className="text-brand">favorite tool.</span>
         </h1>
         <p>{SITE_TAGLINE}</p>
       </section>

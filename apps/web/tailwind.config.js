@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
-  theme: { extend: { colors: { hedge: { DEFAULT: '#4f7f68', dark: '#315d49', light: '#e8f0eb', pale: '#f5f8f5' } } } },
+  theme: { extend: { colors: { brand: { DEFAULT: '#4f46e5', dark: '#4338ca', light: '#eef2ff', pale: '#f8fafc' } } } },
   plugins: [],
 };

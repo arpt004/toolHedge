@@ -3,16 +3,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(160deg, #1c2b22 0%, #2c4435 55%, #1c2b22 100%);
+  background: linear-gradient(160deg, #0b1120 0%, #1e1b4b 55%, #0b1120 100%);
   padding: 20px;
 }
 .admin-login-card {
-  background: #fff;
+  background: var(--color-surface);
+  color: var(--color-text);
   border-radius: 16px;
   padding: 34px 32px;
   width: 100%;
   max-width: 380px;
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -22,7 +23,7 @@
   align-items: center;
   gap: 10px;
   font-weight: 700;
-  color: #233329;
+  color: var(--color-text);
 }
 .admin-login-brand .admin-brand-mark {
   display: inline-flex;
@@ -31,7 +32,7 @@
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  background: #4f7f68;
+  background: var(--brand);
   color: #fff;
   font-weight: 800;
 }
@@ -42,7 +43,7 @@
 .admin-login-card > p {
   margin: 0 0 6px;
   font-size: 13px;
-  color: #7c8c81;
+  color: var(--color-text-muted);
 }
 .admin-password-field {
   display: flex;

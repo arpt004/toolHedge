@@ -9,20 +9,20 @@
   font-weight: 600;
 }
 .pricing-freemium {
-  color: #52745e;
-  background: #edf5ee;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, var(--color-surface));
 }
 .pricing-free {
-  color: #447452;
-  background: #eaf5ec;
+  color: var(--success);
+  background: var(--success-bg);
 }
 .pricing-paid {
-  color: #8d6c36;
-  background: #f8f2e7;
+  color: var(--warning);
+  background: var(--warning-bg);
 }
 .pricing-open_source {
-  color: #64718c;
-  background: #eef0f7;
+  color: var(--brand);
+  background: var(--color-surface-sunken);
 }
 @media (max-width: 640px) {
   .pricing-badge {

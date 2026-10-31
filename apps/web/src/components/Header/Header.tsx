@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { SITE_NAME, SITE_TAGLINE } from "../../config/site";
+import { ThemeToggle } from "../ThemeToggle/ThemeToggle";
 import "./Header.css";
 
 interface HeaderProps {
@@ -63,6 +64,7 @@ export function Header({
           <Link className="header-admin-link" to="/admin" aria-label="Admin login">
             Admin
           </Link>
+          <ThemeToggle />
         </nav>
       </div>
       <div className="header-mobile-tagline">{SITE_TAGLINE}</div>

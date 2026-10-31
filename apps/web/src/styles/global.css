@@ -3,13 +3,72 @@
 @tailwind utilities;
 
 :root {
-  --brand: theme("colors.hedge.DEFAULT");
-  --brand-dark: theme("colors.hedge.dark");
+  --brand: #4f46e5;
+  --brand-dark: #4338ca;
+  --brand-strong: #3730a3;
+  --accent: #8b5cf6;
+  --color-on-brand: #ffffff;
+
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f1f5f9;
+  --color-surface-sunken: #eef2ff;
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+
+  --color-text: #1e293b;
+  --color-text-muted: #64748b;
+  --color-text-subtle: #94a3b8;
+
+  --danger: #dc2626;
+  --danger-bg: #fef2f2;
+  --danger-border: #fecaca;
+  --warning: #d97706;
+  --warning-bg: #fffbeb;
+  --warning-border: #fde68a;
+  --success: #16a34a;
+  --success-bg: #f0fdf4;
+  --success-border: #bbf7d0;
+
+  --shadow: 30 41 59;
+  color-scheme: light;
+
   font-family: "DM Sans", sans-serif;
-  color: #233329;
-  background: #f8faf8;
+  color: var(--color-text);
+  background: var(--color-bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+}
+:root[data-theme="dark"] {
+  --brand: #818cf8;
+  --brand-dark: #a5b4fc;
+  --brand-strong: #c7d2fe;
+  --accent: #a78bfa;
+  --color-on-brand: #0b1120;
+
+  --color-bg: #0b1120;
+  --color-surface: #151b2b;
+  --color-surface-alt: #1e293b;
+  --color-surface-sunken: #1e1b4b;
+  --color-border: #2d3748;
+  --color-border-strong: #3f4c63;
+
+  --color-text: #e2e8f0;
+  --color-text-muted: #94a3b8;
+  --color-text-subtle: #64748b;
+
+  --danger: #f87171;
+  --danger-bg: #3f1d1d;
+  --danger-border: #7f1d1d;
+  --warning: #fbbf24;
+  --warning-bg: #422006;
+  --warning-border: #92400e;
+  --success: #4ade80;
+  --success-bg: #052e16;
+  --success-border: #166534;
+
+  --shadow: 2 6 23;
+  color-scheme: dark;
 }
 * {
   box-sizing: border-box;
@@ -18,6 +77,10 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background: var(--color-bg);
+  transition:
+    background-color 0.2s,
+    color 0.2s;
 }
 button,
 input,
@@ -50,12 +113,12 @@ a {
   cursor: pointer;
 }
 .button:focus-visible {
-  outline: 3px solid rgba(79, 127, 104, 0.35);
+  outline: 3px solid rgb(from var(--brand) r g b / 0.35);
   outline-offset: 3px;
 }
 .button-primary {
   background: var(--brand);
-  color: #fff;
+  color: var(--color-on-brand);
   border: 1px solid var(--brand);
 }
 .button-primary:hover {
@@ -63,13 +126,13 @@ a {
   border-color: var(--brand-dark);
 }
 .button-secondary {
-  color: #52645a;
-  border: 1px solid #e1e8e2;
-  background: #fff;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
 }
 .button-secondary:hover {
-  border-color: #b7cbbc;
-  background: #f8fbf8;
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-alt);
 }
 .button:disabled {
   opacity: 0.65;
@@ -80,7 +143,12 @@ a {
 .detail-skeleton {
   height: 390px;
   border-radius: 15px;
-  background: linear-gradient(100deg, #eff3ef 30%, #f7f9f7 50%, #eff3ef 70%);
+  background: linear-gradient(
+    100deg,
+    var(--color-surface-alt) 30%,
+    var(--color-border) 50%,
+    var(--color-surface-alt) 70%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.4s infinite;
 }

@@ -4,10 +4,10 @@
   gap: 14px;
 }
 .capability-card {
-  border: 1px solid #e6ece7;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 15px 16px;
-  background: white;
+  background: var(--color-surface);
 }
 .capability-card-heading {
   display: flex;
@@ -16,7 +16,7 @@
 }
 .capability-card h3 {
   margin: 0;
-  color: #2b3c31;
+  color: var(--color-text);
   font:
     700 13px "Manrope",
     sans-serif;
@@ -27,21 +27,21 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #e8f0eb;
-  color: #4f7f68;
+  background: var(--color-surface-sunken);
+  color: var(--brand);
   font-size: 10px;
   font-weight: 700;
 }
 .capability-card p {
   margin: 7px 0 0;
-  color: #748178;
+  color: var(--color-text-muted);
   font-size: 12.5px;
   line-height: 1.6;
 }
 .capability-benefits {
   margin: 8px 0 0;
   padding-left: 16px;
-  color: #65756a;
+  color: var(--color-text-muted);
   font-size: 12px;
   line-height: 1.6;
 }
@@ -55,17 +55,17 @@
 .capability-badge {
   border-radius: 999px;
   padding: 3px 9px;
-  background: #f2f7f3;
-  color: #5c6b61;
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
   font-size: 10px;
   font-weight: 600;
 }
 .capability-plan {
-  background: #eef2ee;
-  color: #45564a;
+  background: var(--color-surface-alt);
+  color: var(--color-text);
 }
 .capability-meta a {
-  color: #4f7f68;
+  color: var(--brand);
   font-size: 11px;
   font-weight: 600;
 }
@@ -74,7 +74,7 @@
   padding: 0;
   border: 0;
   background: none;
-  color: #588066;
+  color: var(--brand);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;

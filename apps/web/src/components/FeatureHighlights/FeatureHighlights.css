@@ -7,11 +7,11 @@
   list-style: none;
 }
 .feature-highlights li {
-  border: 1px solid #e6ece7;
+  border: 1px solid var(--color-border);
   border-radius: 999px;
   padding: 3px 9px;
-  background: #f7faf7;
-  color: #5c6b61;
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
   font-size: 10px;
   font-weight: 600;
   white-space: nowrap;
@@ -22,6 +22,6 @@
 .feature-highlights li.feature-highlights-more {
   background: transparent;
   border-color: transparent;
-  color: #96a39b;
+  color: var(--color-text-subtle);
   padding-left: 2px;
 }
