@@ -8,6 +8,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { api } from "./api/client";
+import { AdminApp } from "./admin/AdminApp";
 import { Footer } from "./components/Footer/Footer";
 import { CompareTray } from "./components/CompareTray/CompareTray";
 import { Header } from "./components/Header/Header";
@@ -21,6 +22,16 @@ import { Category, Software } from "./types/software";
 import "./App.css";
 
 export default function App() {
+  const location = useLocation();
+  // The admin panel is a fully separate shell (its own nav, no public
+  // Header/Footer/CompareTray) — short-circuit before any of that renders.
+  if (location.pathname.startsWith("/admin")) {
+    return <AdminApp />;
+  }
+  return <PublicApp />;
+}
+
+function PublicApp() {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();

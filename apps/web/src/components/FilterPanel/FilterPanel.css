@@ -16,6 +16,24 @@
     700 12px "Manrope",
     sans-serif;
 }
+.filter-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.filter-range input {
+  width: 0;
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  border: 1px solid #e1e8e2;
+  border-radius: 7px;
+  padding: 0 8px;
+  font-size: 12px;
+}
+.filter-range span {
+  color: #9ba69e;
+}
 .filter-option {
   display: flex;
   align-items: center;

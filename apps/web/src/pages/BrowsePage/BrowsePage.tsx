@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { api } from "../../api/client";
+import { api, DynamicFilterOption } from "../../api/client";
 import { SoftwareCard } from "../../components/SoftwareCard/SoftwareCard";
 import { FilterPanel } from "../../components/FilterPanel/FilterPanel";
 import { StatePanel } from "../../components/StatePanel/StatePanel";
@@ -58,6 +58,15 @@ export function BrowsePage({
   const platforms = parseValues(searchParams.get("platform"));
   const tags = parseValues(searchParams.get("tag"));
   const page = Math.max(1, Number(searchParams.get("page") ?? "1") || 1);
+  const attrs = useMemo(() => {
+    const result: Record<string, string> = {};
+    for (const [key, value] of searchParams.entries()) {
+      if (key.startsWith("attr_")) result[key.slice(5)] = value;
+    }
+    return result;
+  }, [searchParams]);
+  const attrsKey = JSON.stringify(attrs);
+  const [dynamicFilters, setDynamicFilters] = useState<DynamicFilterOption[]>([]);
   const [items, setItems] = useState<Software[]>([]);
   const [total, setTotal] = useState(0);
   const [facets, setFacets] = useState<SoftwareList["facets"]>({
@@ -85,7 +94,8 @@ export function BrowsePage({
     selectedCategories.length ||
     pricing.length ||
     platforms.length ||
-    tags.length,
+    tags.length ||
+    Object.keys(attrs).length,
   );
 
   useDocumentSeo({
@@ -94,6 +104,21 @@ export function BrowsePage({
       : `Discover software | ${SITE_NAME}`,
     description: pageCategory?.description ?? SITE_TAGLINE,
   });
+
+  useEffect(() => {
+    let active = true;
+    api
+      .listFilters(selectedCategories[0])
+      .then((result) => {
+        if (active) setDynamicFilters(result);
+      })
+      .catch(() => {
+        if (active) setDynamicFilters([]);
+      });
+    return () => {
+      active = false;
+    };
+  }, [selectedCategories.join(",")]);
 
   useEffect(() => {
     let active = true;
@@ -111,6 +136,7 @@ export function BrowsePage({
         pricing,
         platform: platforms,
         tag: tags,
+        attrs,
       })
       .then((result) => {
         if (!active) return;
@@ -145,6 +171,7 @@ export function BrowsePage({
     pricing.join(","),
     platforms.join(","),
     tags.join(","),
+    attrsKey,
     retryCount,
   ]);
 
@@ -174,11 +201,16 @@ export function BrowsePage({
   const onPlatformChange = (value: string) =>
     toggle("platform", platforms, value);
   const onTagChange = (value: string) => toggle("tag", tags, value);
+  const onAttrChange = (key: string, value: string | null) =>
+    updateParam(`attr_${key}`, value);
   const clearFilters = () => {
     const params = new URLSearchParams(location.search);
     ["q", "category", "pricing", "platform", "tag", "page"].forEach((key) =>
       params.delete(key),
     );
+    [...params.keys()].forEach((key) => {
+      if (key.startsWith("attr_")) params.delete(key);
+    });
     navigate({ pathname: "/", search: params.toString() });
     setDrawerOpen(false);
   };
@@ -302,6 +334,9 @@ export function BrowsePage({
           onPricingChange={onPricingChange}
           onPlatformChange={onPlatformChange}
           onTagChange={onTagChange}
+          dynamicFilters={dynamicFilters}
+          attrValues={attrs}
+          onAttrChange={onAttrChange}
         />
         <div className="browse-results">
           <div className="results-toolbar">

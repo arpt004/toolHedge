@@ -34,7 +34,12 @@ export const listSoftwareQuery = z
       .optional()
       .default([]),
   })
-  .strict();
+  // Admin-managed attribute filters arrive as extra `f_<key>` /
+  // `f_<key>_min` / `f_<key>_max` query params whose set of valid keys is
+  // data-driven (FilterDefinition rows), not known statically here — they
+  // pass through this schema untouched and are whitelisted against the
+  // live FilterDefinition table in the repository layer instead.
+  .passthrough();
 export type ListSoftwareQuery = z.infer<typeof listSoftwareQuery>;
 
 export const listReviewsQuery = z

@@ -9,6 +9,7 @@ import {
   SoftwareRepository,
 } from "./software.types";
 import { demoDataAllowed, enrichPricing, RawPlan } from "./pricing";
+import { resolveAttrFilterConditions } from "./filter-resolution";
 
 const softwareInclude = {
   categories: true,
@@ -170,6 +171,12 @@ export class PrismaSoftwareRepository implements SoftwareRepository {
       filters.push({ platforms: { hasSome: query.platform } });
     if (query.tag.length)
       filters.push({ tags: { some: { slug: { in: query.tag } } } });
+    const rawAttrParams: Record<string, string> = {};
+    for (const [key, value] of Object.entries(query as Record<string, unknown>)) {
+      if (key.startsWith("f_") && typeof value === "string") rawAttrParams[key] = value;
+    }
+    const attrFilters = await resolveAttrFilterConditions(rawAttrParams);
+    filters.push(...attrFilters);
     const where: Prisma.SoftwareWhereInput = {
       contentStatus: "PUBLISHED",
       ...(filters.length ? { AND: filters } : {}),

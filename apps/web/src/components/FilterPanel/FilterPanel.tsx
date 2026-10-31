@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { DynamicFilterOption } from "../../api/client";
 import { Category, PricingType, SoftwareList } from "../../types/software";
 import "./FilterPanel.css";
 
@@ -22,6 +23,9 @@ interface FilterPanelProps {
   onTagChange: (value: string) => void;
   mobile?: boolean;
   onClose?: () => void;
+  dynamicFilters?: DynamicFilterOption[];
+  attrValues?: Record<string, string>;
+  onAttrChange?: (key: string, value: string | null) => void;
 }
 
 export function FilterPanel({
@@ -35,6 +39,9 @@ export function FilterPanel({
   onTagChange,
   mobile = false,
   onClose,
+  dynamicFilters = [],
+  attrValues = {},
+  onAttrChange,
 }: FilterPanelProps) {
   const [tagSearch, setTagSearch] = useState("");
   const [showAllTags, setShowAllTags] = useState(false);
@@ -158,6 +165,60 @@ export function FilterPanel({
         )}
         {!matchingTags.length && <p className="no-tags">No matching tags</p>}
       </section>
+      {dynamicFilters.map((filter) => (
+        <section className="filter-section" key={filter.key}>
+          <h3>{filter.label}</h3>
+          {filter.type === "RANGE" ? (
+            <div className="filter-range">
+              <input
+                type="number"
+                aria-label={`${filter.label} minimum`}
+                placeholder={filter.range ? String(filter.range.min) : "Min"}
+                value={attrValues[`${filter.key}_min`] ?? ""}
+                onChange={(event) => onAttrChange?.(`${filter.key}_min`, event.target.value || null)}
+              />
+              <span>–</span>
+              <input
+                type="number"
+                aria-label={`${filter.label} maximum`}
+                placeholder={filter.range ? String(filter.range.max) : "Max"}
+                value={attrValues[`${filter.key}_max`] ?? ""}
+                onChange={(event) => onAttrChange?.(`${filter.key}_max`, event.target.value || null)}
+              />
+            </div>
+          ) : filter.type === "BOOLEAN" ? (
+            <label className="filter-option">
+              <input
+                type="checkbox"
+                checked={attrValues[filter.key] === "true"}
+                onChange={(event) => onAttrChange?.(filter.key, event.target.checked ? "true" : null)}
+              />
+              <span>Yes</span>
+            </label>
+          ) : (
+            (filter.options ?? []).map((option) => {
+              const current = (attrValues[filter.key] ?? "").split(",").filter(Boolean);
+              const checked = current.includes(option.value);
+              return (
+                <label className="filter-option" key={option.value}>
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => {
+                      const next = checked
+                        ? current.filter((v) => v !== option.value)
+                        : [...current, option.value];
+                      onAttrChange?.(filter.key, next.length ? next.join(",") : null);
+                    }}
+                  />
+                  <span>{option.label}</span>
+                  {option.count !== undefined && <small>{option.count}</small>}
+                </label>
+              );
+            })
+          )}
+        </section>
+      ))}
       <span className="sr-only">{categories.length} categories available</span>
     </aside>
   );

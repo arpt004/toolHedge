@@ -60,10 +60,9 @@ export function Header({
             Compare
             {selectedSlugs.length > 0 && <span>{selectedSlugs.length}</span>}
           </Link>
-          <div
-            className="header-future-slot"
-            aria-label="Future account navigation"
-          />
+          <Link className="header-admin-link" to="/admin" aria-label="Admin login">
+            Admin
+          </Link>
         </nav>
       </div>
       <div className="header-mobile-tagline">{SITE_TAGLINE}</div>

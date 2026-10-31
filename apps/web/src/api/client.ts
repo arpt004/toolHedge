@@ -18,8 +18,26 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+export interface DynamicFilterOption {
+  key: string;
+  label: string;
+  type: 'CHECKBOX' | 'SINGLE_SELECT' | 'BOOLEAN' | 'RANGE';
+  options?: Array<{ value: string; label: string; count?: number }>;
+  range?: { min: number; max: number } | null;
+}
+
 export const api = {
-  listSoftware(params: { q: string; sort: string; page: number; limit?: number; category?: string[]; pricing?: string[]; platform?: string[]; tag?: string[] }) {
+  listSoftware(params: {
+    q: string;
+    sort: string;
+    page: number;
+    limit?: number;
+    category?: string[];
+    pricing?: string[];
+    platform?: string[];
+    tag?: string[];
+    attrs?: Record<string, string>;
+  }) {
     const query = new URLSearchParams({
       q: params.q,
       sort: params.sort,
@@ -29,7 +47,15 @@ export const api = {
     for (const filter of ['category', 'pricing', 'platform', 'tag'] as const) {
       if (params[filter]?.length) query.set(filter, params[filter]!.join(','));
     }
+    for (const [key, value] of Object.entries(params.attrs ?? {})) {
+      if (value) query.set(`f_${key}`, value);
+    }
     return request<import('../types/software').SoftwareList>(`/software?${query}`);
+  },
+  listFilters(category?: string) {
+    const query = new URLSearchParams();
+    if (category) query.set('category', category);
+    return request<DynamicFilterOption[]>(`/filters?${query}`);
   },
   getSoftware(slug: string) {
     return request<import('../types/software').Software>(`/software/${encodeURIComponent(slug)}`);

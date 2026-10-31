@@ -160,6 +160,28 @@ enum PlanType {
   CONTACT_SALES
 }
 
+enum AdminRole {
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum FilterType {
+  CHECKBOX
+  SINGLE_SELECT
+  BOOLEAN
+  RANGE
+}
+
+// Where a filter's values come from. FEATURE reuses the existing Feature /
+// SoftwareFeature attribute system (already powers the compare table) so
+// admin-managed filters never require a parallel data model.
+enum FilterSourceType {
+  PRICING_TYPE
+  PLATFORM
+  TAG
+  FEATURE
+}
+
 model Software {
   id                 Int               @id @default(autoincrement())
   slug               String            @unique
@@ -278,6 +300,9 @@ model Category {
   description String     @db.Text
   icon        String
   software    Software[]
+  filters     FilterDefinition[] @relation("FilterCategories")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
 
 model Tag {
@@ -295,13 +320,14 @@ model FeatureGroup {
 }
 
 model Feature {
-  id      Int               @id @default(autoincrement())
-  slug    String            @unique
-  name    String
-  type    String
-  groupId Int
-  group   FeatureGroup      @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  values  SoftwareFeature[]
+  id        Int               @id @default(autoincrement())
+  slug      String            @unique
+  name      String
+  type      String
+  groupId   Int
+  group     FeatureGroup      @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  values    SoftwareFeature[]
+  filters   FilterDefinition[]
 
   @@index([groupId])
 }
@@ -536,4 +562,74 @@ model Review {
   software          Software             @relation(fields: [softwareId], references: [id], onDelete: Cascade)
 
   @@index([softwareId, moderationStatus])
+}
+
+// --- Admin platform (authentication, preferences, filter management) ---
+// Scoped to Admin only for now. AdminSession is a generic, revocable,
+// server-side session model (not a JWT) so logout/expiry are immediate and
+// true server-side checks. When User/Provider logins are added later, they
+// can reuse this same cookie+session pattern against their own tables
+// without reworking the auth middleware shape.
+model AdminUser {
+  id                Int                     @id @default(autoincrement())
+  email             String                  @unique
+  passwordHash      String
+  name              String
+  role              AdminRole               @default(ADMIN)
+  isActive          Boolean                 @default(true)
+  lastLoginAt       DateTime?
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  sessions          AdminSession[]
+  columnPreferences AdminColumnPreference[]
+}
+
+model AdminSession {
+  id          String    @id @default(cuid())
+  adminId     Int
+  admin       AdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  tokenHash   String    @unique
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+  lastSeenAt  DateTime  @default(now())
+  userAgent   String?
+  ipAddress   String?
+
+  @@index([adminId])
+}
+
+// Per-admin, per-table column visibility/order preferences (e.g. tableKey =
+// "products"). Keeping it a single JSON column rather than one row per
+// column keeps this evolvable as new tables/columns are added later.
+model AdminColumnPreference {
+  id        Int       @id @default(autoincrement())
+  adminId   Int
+  admin     AdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  tableKey  String
+  columns   Json
+  updatedAt DateTime  @updatedAt
+
+  @@unique([adminId, tableKey])
+}
+
+// Admin-configured filters for the public product listing. sourceType
+// FEATURE reads/validates against the existing Feature/SoftwareFeature
+// attribute system; PRICING_TYPE/PLATFORM/TAG expose the already-whitelisted
+// native Software fields under admin-controlled labels/order/enablement.
+model FilterDefinition {
+  id           Int              @id @default(autoincrement())
+  key          String           @unique
+  label        String
+  type         FilterType
+  sourceType   FilterSourceType
+  featureId    Int?
+  feature      Feature?         @relation(fields: [featureId], references: [id])
+  options      Json?
+  isEnabled    Boolean          @default(true)
+  displayOrder Int              @default(0)
+  categories   Category[]       @relation("FilterCategories")
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([isEnabled, displayOrder])
 }
