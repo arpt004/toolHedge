@@ -337,7 +337,8 @@
   }
 }
 @media (max-width: 390px) {
-  .software-grid {
+  .software-grid,
+  .browse-layout .software-grid {
     grid-template-columns: 1fr;
   }
   .hero h1 {

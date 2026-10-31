@@ -573,7 +573,7 @@
     min-width: calc(210px + 190px * 2);
   }
   .comparison-table thead th {
-    top: 72px;
+    top: 115px;
     height: 190px;
     padding: 12px 9px;
   }

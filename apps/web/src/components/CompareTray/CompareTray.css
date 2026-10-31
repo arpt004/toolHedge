@@ -85,8 +85,25 @@
     border-radius: 11px;
   }
   .compare-tray-items {
+    flex: 1 1 auto;
+    min-width: 72px;
     gap: 5px;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .compare-tray-items::-webkit-scrollbar {
+    display: none;
+  }
+  .tray-tool {
+    flex-shrink: 0;
+  }
+  .tray-counter {
+    flex-shrink: 0;
+  }
+  .compare-tray-action {
+    flex: 0 0 auto;
   }
   .tray-tool {
     max-width: 84px;

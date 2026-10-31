@@ -138,7 +138,7 @@
 }
 @media (max-width: 960px) {
   .detail-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 16px;
   }
 }
@@ -166,5 +166,9 @@
   }
   .detail-actions {
     padding: 24px 20px 30px;
+  }
+  .detail-content section,
+  .detail-content .detail-section-anchor {
+    scroll-margin-top: 130px;
   }
 }

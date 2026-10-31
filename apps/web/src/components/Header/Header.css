@@ -134,23 +134,28 @@
 }
 @media (max-width: 850px) {
   .header-inner {
-    grid-template-columns: auto minmax(230px, 1fr) 50px;
+    grid-template-columns: auto minmax(230px, 1fr) auto;
     gap: 20px;
   }
 }
+/* Below 640px the single-row 3-up grid (logo / search / nav) no longer has
+   room for all three columns, so the header switches to two rows: logo +
+   nav share the top row, and the search bar gets its own full-width row. */
 @media (max-width: 640px) {
   .site-header {
-    height: 72px;
+    height: auto;
   }
   .header-inner {
     grid-template-columns: auto 1fr;
-    gap: 16px;
-    padding: 0 18px;
-  }
-  .header-future-slot {
-    display: none;
+    grid-template-areas:
+      "logo nav"
+      "search search";
+    row-gap: 10px;
+    column-gap: 16px;
+    padding: 14px 18px;
   }
   .wordmark {
+    grid-area: logo;
     font-size: 18px;
     gap: 7px;
   }
@@ -158,10 +163,17 @@
     width: 29px;
     height: 29px;
   }
+  .header-nav {
+    grid-area: nav;
+  }
   .search-form {
+    grid-area: search;
     height: 40px;
     padding: 0 9px;
     gap: 6px;
+  }
+  .header-future-slot {
+    display: none;
   }
   .search-form kbd {
     display: none;
@@ -176,18 +188,15 @@
 @media (max-width: 640px) {
   .header-nav {
     justify-content: flex-end;
+    gap: 10px;
   }
   .header-compare-link {
-    padding: 8px 0 8px 4px;
+    padding: 0;
     font-size: 11px;
   }
 }
 @media (max-width: 390px) {
   .wordmark > span:last-child {
     display: none;
-  }
-  .header-inner {
-    grid-template-columns: 32px 1fr;
-    gap: 12px;
   }
 }

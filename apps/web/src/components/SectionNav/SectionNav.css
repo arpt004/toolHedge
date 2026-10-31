@@ -36,6 +36,7 @@
     position: static;
     max-height: none;
     overflow: visible;
+    min-width: 0;
     margin-bottom: 20px;
   }
   .section-nav ul {
