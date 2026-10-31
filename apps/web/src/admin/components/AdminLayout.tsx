@@ -35,14 +35,14 @@ export function AdminLayout() {
               className={({ isActive }) => `admin-nav-link${isActive ? ' is-active' : ''}`}
             >
               <span aria-hidden="true">{item.icon}</span>
-              {item.label}
+              <span className="admin-nav-label">{item.label}</span>
             </NavLink>
           ))}
         </nav>
         <div className="admin-sidebar-footer">
           <a href="/" className="admin-nav-link">
             <span aria-hidden="true">↩</span>
-            View site
+            <span className="admin-nav-label">View site</span>
           </a>
         </div>
       </aside>

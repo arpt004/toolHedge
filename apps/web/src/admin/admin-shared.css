@@ -104,6 +104,7 @@
   gap: 10px;
   flex-wrap: wrap;
   align-items: center;
+  min-width: 0;
 }
 .admin-input,
 .admin-select {
@@ -124,6 +125,7 @@
 }
 .admin-search-input {
   width: 240px;
+  max-width: 100%;
 }
 .admin-textarea {
   width: 100%;
