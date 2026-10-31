@@ -7,11 +7,11 @@
   list-style: none;
 }
 .audience-chip {
-  border: 1px solid #dce8de;
+  border: 1px solid color-mix(in srgb, var(--brand) 30%, var(--color-border));
   border-radius: 999px;
   padding: 7px 13px;
-  background: #f2f7f3;
-  color: #416c52;
+  background: var(--color-surface-sunken);
+  color: var(--brand-dark);
   font-size: 12px;
   font-weight: 600;
 }

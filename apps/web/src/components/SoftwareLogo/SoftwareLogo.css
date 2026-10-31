@@ -8,8 +8,8 @@
 .software-logo-fallback {
   display: inline-grid;
   place-items: center;
-  color: #456e55;
-  background: #eaf2ec;
+  color: var(--brand);
+  background: var(--color-surface-sunken);
   font:
     700 18px "Manrope",
     sans-serif;

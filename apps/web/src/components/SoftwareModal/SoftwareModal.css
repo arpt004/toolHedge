@@ -3,7 +3,7 @@
   z-index: 20;
   inset: 0;
   padding: 24px;
-  background: rgba(29, 43, 34, 0.4);
+  background: rgba(15, 23, 42, 0.5);
   backdrop-filter: blur(3px);
   display: flex;
   align-items: center;
@@ -15,10 +15,10 @@
   max-height: min(800px, calc(100vh - 48px));
   overflow-y: auto;
   position: relative;
-  background: white;
+  background: var(--color-surface);
   border-radius: 18px;
   padding: 32px 36px;
-  box-shadow: 0 25px 90px rgba(20, 40, 27, 0.2);
+  box-shadow: 0 25px 90px rgba(15, 23, 42, 0.3);
   animation: modal-in 0.2s ease-out;
 }
 .modal-close {
@@ -26,8 +26,8 @@
   top: 16px;
   right: 16px;
   border: 0;
-  background: #f3f6f3;
-  color: #748078;
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
   width: 32px;
   height: 32px;
   border-radius: 9px;
@@ -36,7 +36,7 @@
   line-height: 1;
 }
 .modal-close:focus-visible {
-  outline: 3px solid rgba(79, 127, 104, 0.35);
+  outline: 3px solid rgb(from var(--brand) r g b / 0.35);
   outline-offset: 3px;
 }
 .modal-heading {
@@ -61,8 +61,8 @@
   margin: 0 0 14px;
   padding: 10px 13px;
   border-radius: 9px;
-  background: #f2f7f3;
-  color: #3a6a4d;
+  background: var(--color-surface-sunken);
+  color: var(--brand-dark);
   font-size: 12.5px;
   font-weight: 600;
   line-height: 1.6;
@@ -76,10 +76,10 @@
   list-style: none;
 }
 .modal-plan-names li {
-  border: 1px solid #e6ece7;
+  border: 1px solid var(--color-border);
   border-radius: 999px;
   padding: 3px 10px;
-  color: #5c6b61;
+  color: var(--color-text-muted);
   font-size: 10.5px;
   font-weight: 600;
 }
@@ -96,10 +96,10 @@
   line-height: 1.6;
 }
 .modal-pro {
-  color: #3a6a4d;
+  color: var(--success);
 }
 .modal-con {
-  color: #8a6530;
+  color: var(--warning);
 }
 .modal-review-preview {
   display: flex;
@@ -109,12 +109,12 @@
 .modal-review-preview blockquote {
   margin: 0;
   padding: 10px 13px;
-  border-left: 2px solid #dfeade;
-  background: #fafcf9;
+  border-left: 2px solid var(--color-border-strong);
+  background: var(--color-surface-alt);
 }
 .modal-review-preview p {
   margin: 0;
-  color: #5c6b61;
+  color: var(--color-text-muted);
   font-size: 12.5px;
   font-style: italic;
   line-height: 1.6;
@@ -122,13 +122,13 @@
 .modal-review-preview cite {
   display: block;
   margin-top: 5px;
-  color: #96a39b;
+  color: var(--color-text-subtle);
   font-size: 10.5px;
   font-style: normal;
 }
 .modal-compat-note {
   margin: 14px 0 0;
-  color: #8a968d;
+  color: var(--color-text-muted);
   font-size: 11.5px;
 }
 .modal-secondary-actions {
@@ -147,16 +147,16 @@
     700 22px "Manrope",
     sans-serif;
   letter-spacing: -0.6px;
-  color: #293b2f;
+  color: var(--color-text);
 }
 .modal-heading p {
   margin: 0;
   font-size: 13px;
   line-height: 1.5;
-  color: #849087;
+  color: var(--color-text-muted);
 }
 .modal-description {
-  color: #637168;
+  color: var(--color-text-muted);
   font-size: 14px;
   line-height: 1.75;
   margin: 14px 0 14px;
@@ -166,12 +166,12 @@
   font:
     700 12px "Manrope",
     sans-serif;
-  color: #4b5c50;
+  color: var(--color-text);
 }
 .modal-block {
   margin-top: 18px;
   padding-top: 18px;
-  border-top: 1px solid #edf0ed;
+  border-top: 1px solid var(--color-border);
 }
 .modal-two-col {
   display: grid;
@@ -185,14 +185,14 @@
   margin-top: 18px;
 }
 .modal-snapshot-panel {
-  border: 1px solid #e6ece7;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 14px 15px;
-  background: #fbfdfb;
+  background: var(--color-surface-alt);
 }
 .modal-snapshot-panel h3 {
   margin: 0 0 9px;
-  color: #4b5c50;
+  color: var(--color-text);
   font:
     700 11px "Manrope",
     sans-serif;
@@ -227,14 +227,14 @@
 }
 .modal-message p {
   margin: 0;
-  color: #849087;
+  color: var(--color-text-muted);
   font-size: 13px;
 }
 .spinner {
   display: inline-block;
   width: 22px;
   height: 22px;
-  border: 2px solid #dce8df;
+  border: 2px solid var(--color-border);
   border-top-color: var(--brand);
   border-radius: 50%;
   animation: spin 0.75s linear infinite;
@@ -244,8 +244,8 @@
   align-items: center;
   padding: 4px 7px;
   border-radius: 999px;
-  background: #f4f2e8;
-  color: #85764d;
+  background: var(--warning-bg);
+  color: var(--warning);
   font-size: 9px;
   font-weight: 600;
   white-space: nowrap;
@@ -256,7 +256,7 @@
   flex-wrap: wrap;
   gap: 7px;
   margin: 0;
-  color: #557360;
+  color: var(--brand-dark);
   font-weight: 600;
   font-size: 13px;
 }

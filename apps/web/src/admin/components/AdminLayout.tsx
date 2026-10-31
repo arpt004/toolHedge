@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../AuthContext';
+import { ThemeToggle } from '../../components/ThemeToggle/ThemeToggle';
 import './AdminLayout.css';
 
 const NAV_ITEMS = [
@@ -49,6 +50,7 @@ export function AdminLayout() {
         <header className="admin-topbar">
           <div />
           <div className="admin-topbar-user">
+            <ThemeToggle />
             <div className="admin-user-chip">
               <span className="admin-user-avatar" aria-hidden="true">
                 {admin?.name?.[0]?.toUpperCase() ?? 'A'}

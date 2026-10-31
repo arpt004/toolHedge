@@ -2,19 +2,19 @@
   width: min(1120px, calc(100% - 60px));
   margin: auto auto 0;
   min-height: 76px;
-  border-top: 1px solid #e8ede8;
+  border-top: 1px solid var(--color-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  color: #98a29a;
+  color: var(--color-text-subtle);
   font-size: 11px;
 }
 .site-footer p {
   margin: 0;
 }
 .footer-brand {
-  color: #607c69;
+  color: var(--brand);
   font:
     700 12px "Manrope",
     sans-serif;

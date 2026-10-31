@@ -5,13 +5,13 @@
   margin-top: 13px;
 }
 .platform-chip {
-  color: #78867c;
-  border: 1px solid #e8ede9;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
   border-radius: 5px;
   padding: 4px 6px;
   font-size: 9px;
   line-height: 1;
-  background: #fbfcfb;
+  background: var(--color-surface-alt);
 }
 @media (max-width: 640px) {
   .platform-list {

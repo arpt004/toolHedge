@@ -1,5 +1,5 @@
 .detail-wrap {
-  width: min(1140px, calc(100% - 48px));
+  width: min(1220px, calc(100% - 48px));
   flex: 1;
   margin: 30px auto 70px;
 }
@@ -8,42 +8,42 @@
   align-items: center;
   gap: 7px;
   margin: 0 0 18px;
-  color: #a3ada5;
+  color: var(--color-text-subtle);
   font-size: 12px;
 }
 .breadcrumbs a {
-  color: #718178;
+  color: var(--color-text-muted);
 }
 .breadcrumbs a:hover {
-  color: #4f7f68;
+  color: var(--brand);
 }
 .breadcrumbs [aria-current="page"] {
-  color: #3b4c40;
+  color: var(--color-text);
   font-weight: 600;
 }
 .back-link {
   display: inline-flex;
-  color: #718178;
+  color: var(--color-text-muted);
   font-size: 13px;
   margin: 0 0 18px;
 }
 .back-link:hover {
-  color: #4f7f68;
+  color: var(--brand);
 }
 .detail-panel {
-  border: 1px solid #e6ece7;
-  background: white;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
   border-radius: 15px;
   overflow: hidden;
 }
 .detail-top {
-  background: linear-gradient(115deg, #f0f6f1, #fafcf9);
+  background: linear-gradient(115deg, var(--color-surface-sunken), var(--color-surface));
   display: flex;
   align-items: flex-start;
   flex-wrap: wrap;
   gap: 20px;
   padding: 32px 38px;
-  border-bottom: 1px solid #e8eee9;
+  border-bottom: 1px solid var(--color-border);
 }
 .detail-top-info {
   flex: 1;
@@ -56,20 +56,20 @@
 }
 .detail-top h1 {
   margin: 9px 0 5px;
-  color: #293b2f;
+  color: var(--color-text);
   font:
     800 29px "Manrope",
     sans-serif;
   letter-spacing: -0.8px;
 }
 .detail-tagline {
-  color: #7b897f;
+  color: var(--color-text-muted);
   margin: 0;
   font-size: 14px;
 }
 .detail-starting-price {
   margin: 8px 0 0;
-  color: #3a6a4d;
+  color: var(--brand-dark);
   font-size: 13px;
   font-weight: 700;
 }
@@ -104,14 +104,14 @@
 }
 .detail-content h2 {
   margin: 0 0 12px;
-  color: #3b4c40;
+  color: var(--color-text);
   font:
     700 15px "Manrope",
     sans-serif;
 }
 .detail-overview p {
   max-width: 720px;
-  color: #65756a;
+  color: var(--color-text-muted);
   font-size: 14px;
   line-height: 1.8;
   margin: 0 0 12px;
@@ -120,7 +120,7 @@
   margin-bottom: 0;
 }
 .detail-overview strong {
-  color: #3b4c40;
+  color: var(--color-text);
 }
 .detail-content .platform-chip {
   font-size: 11px;
@@ -131,7 +131,7 @@
   gap: 10px;
   padding: 30px 38px 38px;
   margin-top: 30px;
-  border-top: 1px solid #edf0ed;
+  border-top: 1px solid var(--color-border);
 }
 .detail-error {
   margin-top: 8px;
